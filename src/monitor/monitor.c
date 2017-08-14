@@ -1,4 +1,5 @@
 #include "nemu.h"
+#include <unistd.h>
 
 #define ENTRY_START 0x100000
 
@@ -12,10 +13,16 @@ void init_qemu_reg();
 bool gdb_memcpy_to_qemu(uint32_t, void *, int);
 
 FILE *log_fp = NULL;
+static char *log_file = NULL;
+static char *img_file = NULL;
+static int is_batch_mode = false;
 
 static inline void init_log() {
-  log_fp = fopen("log.txt", "w");
-  Assert(log_fp, "Can not open 'log.txt'");
+#ifdef DEBUG
+  if (log_file == NULL) return;
+  log_fp = fopen(log_file, "w");
+  Assert(log_fp, "Can not open '%s'", log_file);
+#endif
 }
 
 static inline void welcome() {
@@ -24,7 +31,7 @@ static inline void welcome() {
   printf("For help, type \"help\"\n");
 }
 
-static inline void load_default_img() {
+static inline int load_default_img() {
   const uint8_t img []  = {
     0xb8, 0x34, 0x12, 0x00, 0x00,        // 100000:  movl  $0x1234,%eax
     0xb9, 0x27, 0x00, 0x10, 0x00,        // 100005:  movl  $0x100027,%ecx
@@ -37,37 +44,35 @@ static inline void load_default_img() {
     0xd6,                                // 100026:  nemu_trap
   };
 
-  printf("No image is given. Use the default build-in image.\n");
+  Log("No image is given. Use the default build-in image.");
 
   memcpy(guest_to_host(ENTRY_START), img, sizeof(img));
-#ifdef CROSS_CHECK
-  gdb_memcpy_to_qemu(ENTRY_START, guest_to_host(ENTRY_START), sizeof(img));
-#endif
+
+  return sizeof(img);
 }
 
-static inline void load_img(int argc, char *argv[]) {
-  if (argc == 1) {
-    load_default_img();
-    return;
+static inline void load_img() {
+  long size;
+  if (img_file == NULL) {
+    size = load_default_img();
   }
+  else {
+    int ret;
 
-  int ret;
-  Assert(argc <= 2, "run NEMU with format 'nemu program [disk_img]'");
-  char *exec_file = argv[1];
+    FILE *fp = fopen(img_file, "rb");
+    Assert(fp, "Can not open '%s'", img_file);
 
-  FILE *fp = fopen(exec_file, "rb");
-  Assert(fp, "Can not open '%s'", exec_file);
+    Log("The image is %s", img_file);
 
-  printf("The image is %s\n", exec_file);
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
 
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    ret = fread(guest_to_host(ENTRY_START), size, 1, fp);
+    assert(ret == 1);
 
-  fseek(fp, 0, SEEK_SET);
-  ret = fread(guest_to_host(ENTRY_START), size, 1, fp);
-  assert(ret == 1);
-
-  fclose(fp);
+    fclose(fp);
+  }
 
 #ifdef CROSS_CHECK
   gdb_memcpy_to_qemu(ENTRY_START, guest_to_host(ENTRY_START), size);
@@ -83,13 +88,30 @@ static inline void restart() {
 #endif
 }
 
-void init_monitor(int argc, char *argv[]) {
+static inline void parse_args(int argc, char *argv[]) {
+  int o;
+  while ( (o = getopt(argc, argv, "-bl:")) != -1) {
+    switch (o) {
+      case 'b': is_batch_mode = true; break;
+      case 'l': log_file = optarg; break;
+      case 1:
+                if (img_file != NULL) Log("too much argument '%s', ignored", optarg);
+                else img_file = optarg;
+                break;
+      default:
+                panic("Usage: %s [-b] [-l log_file] [img_file]", argv[0]);
+    }
+  }
+}
+
+int init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
 
-#ifdef LOG_FILE
+  /* Parse arguments. */
+  parse_args(argc, argv);
+
   /* Open the log file. */
   init_log();
-#endif
 
   /* Test the implementation of the `CPU_state' structure. */
   reg_test();
@@ -100,7 +122,7 @@ void init_monitor(int argc, char *argv[]) {
 #endif
 
   /* Load the image to memory. */
-  load_img(argc, argv);
+  load_img();
 
   /* Initialize this virtual computer system. */
   restart();
@@ -116,4 +138,6 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Display welcome message. */
   welcome();
+
+  return is_batch_mode;
 }

@@ -32,10 +32,10 @@ $(OBJ_DIR)/%.o: src/%.c
 .PHONY: app run submit clean
 app: $(BINARY)
 
-PROG ?=
+ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
 
 # Command to execute NEMU
-NEMU_EXEC := $(BINARY) $(PROG)
+NEMU_EXEC := $(BINARY) $(ARGS)
 
 $(BINARY): $(OBJS)
 	$(call git_commit, "compile")

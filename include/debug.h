@@ -4,9 +4,15 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifdef LOG_FILE
+#ifdef DEBUG
 extern FILE* log_fp;
-#	define Log_write(format, ...) fprintf(log_fp, format, ## __VA_ARGS__), fflush(log_fp)
+#	define Log_write(format, ...) \
+  do { \
+    if (log_fp != NULL) { \
+      fprintf(log_fp, format, ## __VA_ARGS__); \
+      fflush(log_fp); \
+    } \
+  } while (0)
 #else
 #	define Log_write(format, ...)
 #endif

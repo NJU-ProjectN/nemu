@@ -2,7 +2,6 @@
 #define __COMMON_H__
 
 #define DEBUG
-#define LOG_FILE
 //#define CROSS_CHECK
 
 /* You will define this macro in PA2 */
