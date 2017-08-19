@@ -81,7 +81,7 @@ make_EHelper(mul) {
   rtl_lr(&t0, R_EAX, id_dest->width);
   rtl_mul(&t0, &t1, &id_dest->val, &t0);
 
-  switch(id_dest->width) {
+  switch (id_dest->width) {
     case 1:
       rtl_sr_w(R_AX, &t1);
       break;
@@ -105,7 +105,7 @@ make_EHelper(imul1) {
   rtl_lr(&t0, R_EAX, id_dest->width);
   rtl_imul(&t0, &t1, &id_dest->val, &t0);
 
-  switch(id_dest->width) {
+  switch (id_dest->width) {
     case 1:
       rtl_sr_w(R_AX, &t1);
       break;
@@ -148,7 +148,7 @@ make_EHelper(imul3) {
 }
 
 make_EHelper(div) {
-  switch(id_dest->width) {
+  switch (id_dest->width) {
     case 1:
       rtl_li(&t1, 0);
       rtl_lr_w(&t0, R_AX);
@@ -183,7 +183,7 @@ make_EHelper(div) {
 make_EHelper(idiv) {
   rtl_sext(&id_dest->val, &id_dest->val, id_dest->width);
 
-  switch(id_dest->width) {
+  switch (id_dest->width) {
     case 1:
       rtl_lr_w(&t0, R_AX);
       rtl_sext(&t0, &t0, 2);

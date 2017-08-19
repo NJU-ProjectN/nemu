@@ -13,7 +13,7 @@ void rtl_setcc(rtlreg_t* dest, uint8_t subcode) {
 
   // TODO: Query EFLAGS to determine whether the condition code is satisfied.
   // dest <- ( cc is satisfied ? 1 : 0)
-  switch(subcode & 0xe) {
+  switch (subcode & 0xe) {
     case CC_O:
     case CC_B:
     case CC_E:
