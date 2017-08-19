@@ -11,7 +11,7 @@ enum { OP_TYPE_REG, OP_TYPE_MEM, OP_TYPE_IMM };
 
 typedef struct {
   uint32_t type;
-  int len;
+  int width;
   union {
     uint32_t reg;
     rtlreg_t addr;

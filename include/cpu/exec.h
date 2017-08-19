@@ -39,15 +39,15 @@ static inline const char* get_cc_name(int subcode) {
 #define print_asm(...)
 #endif
 
-#define suffix_char(len) ((len) == 4 ? 'l' : ((len) == 1 ? 'b' : ((len) == 2 ? 'w' : '?')))
+#define suffix_char(width) ((width) == 4 ? 'l' : ((width) == 1 ? 'b' : ((width) == 2 ? 'w' : '?')))
 
 #define print_asm_template1(instr) \
-  print_asm(str(instr) "%c %s", suffix_char(id_dest->len), id_dest->str)
+  print_asm(str(instr) "%c %s", suffix_char(id_dest->width), id_dest->str)
 
 #define print_asm_template2(instr) \
-  print_asm(str(instr) "%c %s,%s", suffix_char(id_dest->len), id_src->str, id_dest->str)
+  print_asm(str(instr) "%c %s,%s", suffix_char(id_dest->width), id_src->str, id_dest->str)
 
 #define print_asm_template3(instr) \
-  print_asm(str(instr) "%c %s,%s,%s", suffix_char(id_dest->len), id_src->str, id_src2->str, id_dest->str)
+  print_asm(str(instr) "%c %s,%s,%s", suffix_char(id_dest->width), id_src->str, id_src2->str, id_dest->str)
 
 #endif

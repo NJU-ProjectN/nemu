@@ -14,7 +14,7 @@ const rtlreg_t tzero = 0;
 static inline make_DopHelper(I) {
   /* eip here is pointing to the immediate */
   op->type = OP_TYPE_IMM;
-  op->imm = instr_fetch(eip, op->len);
+  op->imm = instr_fetch(eip, op->width);
   rtl_li(&op->val, op->imm);
 
 #ifdef DEBUG
@@ -28,11 +28,11 @@ static inline make_DopHelper(I) {
  */
 /* sign immediate */
 static inline make_DopHelper(SI) {
-  assert(op->len == 1 || op->len == 4);
+  assert(op->width == 1 || op->width == 4);
 
   op->type = OP_TYPE_IMM;
 
-  /* TODO: Use instr_fetch() to read `op->len' bytes of memory
+  /* TODO: Use instr_fetch() to read `op->width' bytes of memory
    * pointed by `eip'. Interpret the result as a signed immediate,
    * and assign it to op->simm.
    *
@@ -55,11 +55,11 @@ static inline make_DopHelper(a) {
   op->type = OP_TYPE_REG;
   op->reg = R_EAX;
   if (load_val) {
-    rtl_lr(&op->val, R_EAX, op->len);
+    rtl_lr(&op->val, R_EAX, op->width);
   }
 
 #ifdef DEBUG
-  snprintf(op->str, OP_STR_SIZE, "%%%s", reg_name(R_EAX, op->len));
+  snprintf(op->str, OP_STR_SIZE, "%%%s", reg_name(R_EAX, op->width));
 #endif
 }
 
@@ -71,11 +71,11 @@ static inline make_DopHelper(r) {
   op->type = OP_TYPE_REG;
   op->reg = decoding.opcode & 0x7;
   if (load_val) {
-    rtl_lr(&op->val, op->reg, op->len);
+    rtl_lr(&op->val, op->reg, op->width);
   }
 
 #ifdef DEBUG
-  snprintf(op->str, OP_STR_SIZE, "%%%s", reg_name(op->reg, op->len));
+  snprintf(op->str, OP_STR_SIZE, "%%%s", reg_name(op->reg, op->width));
 #endif
 }
 
@@ -98,7 +98,7 @@ static inline make_DopHelper(O) {
   op->type = OP_TYPE_MEM;
   op->addr = instr_fetch(eip, 4);
   if (load_val) {
-    rtl_lm(&op->val, &op->addr, op->len);
+    rtl_lm(&op->val, &op->addr, op->width);
   }
 
 #ifdef DEBUG
@@ -197,21 +197,21 @@ make_DHelper(test_I) {
 }
 
 make_DHelper(SI2E) {
-  assert(id_dest->len == 2 || id_dest->len == 4);
+  assert(id_dest->width == 2 || id_dest->width == 4);
   decode_op_rm(eip, id_dest, true, NULL, false);
-  id_src->len = 1;
+  id_src->width = 1;
   decode_op_SI(eip, id_src, true);
-  if (id_dest->len == 2) {
+  if (id_dest->width == 2) {
     id_src->val &= 0xffff;
   }
 }
 
 make_DHelper(SI_E2G) {
-  assert(id_dest->len == 2 || id_dest->len == 4);
+  assert(id_dest->width == 2 || id_dest->width == 4);
   decode_op_rm(eip, id_src2, true, id_dest, false);
-  id_src->len = 1;
+  id_src->width = 1;
   decode_op_SI(eip, id_src, true);
-  if (id_dest->len == 2) {
+  if (id_dest->width == 2) {
     id_src->val &= 0xffff;
   }
 }
@@ -238,7 +238,7 @@ make_DHelper(gp2_cl2E) {
 
 make_DHelper(gp2_Ib2E) {
   decode_op_rm(eip, id_dest, true, NULL, false);
-  id_src->len = 1;
+  id_src->width = 1;
   decode_op_I(eip, id_src, true);
 }
 
@@ -246,7 +246,7 @@ make_DHelper(gp2_Ib2E) {
  * use for shld/shrd */
 make_DHelper(Ib_G2E) {
   decode_op_rm(eip, id_dest, true, id_src2, true);
-  id_src->len = 1;
+  id_src->width = 1;
   decode_op_I(eip, id_src, true);
 }
 
@@ -271,7 +271,7 @@ make_DHelper(push_SI) {
 }
 
 make_DHelper(in_I2a) {
-  id_src->len = 1;
+  id_src->width = 1;
   decode_op_I(eip, id_src, true);
   decode_op_a(eip, id_dest, false);
 }
@@ -289,7 +289,7 @@ make_DHelper(in_dx2a) {
 
 make_DHelper(out_a2I) {
   decode_op_a(eip, id_src, true);
-  id_dest->len = 1;
+  id_dest->width = 1;
   decode_op_I(eip, id_dest, true);
 }
 
@@ -305,7 +305,7 @@ make_DHelper(out_a2dx) {
 }
 
 void operand_write(Operand *op, rtlreg_t* src) {
-  if (op->type == OP_TYPE_REG) { rtl_sr(op->reg, op->len, src); }
-  else if (op->type == OP_TYPE_MEM) { rtl_sm(&op->addr, op->len, src); }
+  if (op->type == OP_TYPE_REG) { rtl_sr(op->reg, op->width, src); }
+  else if (op->type == OP_TYPE_MEM) { rtl_sm(&op->addr, op->width, src); }
   else { assert(0); }
 }

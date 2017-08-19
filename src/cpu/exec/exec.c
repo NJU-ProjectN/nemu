@@ -17,7 +17,7 @@ static inline void set_width(int width) {
   if (width == 0) {
     width = decoding.is_operand_size_16 ? 2 : 4;
   }
-  decoding.src.len = decoding.dest.len = decoding.src2.len = width;
+  decoding.src.width = decoding.dest.width = decoding.src2.width = width;
 }
 
 /* Instruction Decode and EXecute */

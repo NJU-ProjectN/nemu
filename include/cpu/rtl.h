@@ -93,8 +93,8 @@ static inline void rtl_sr_l(int r, const rtlreg_t* src1) {
 
 /* RTL psuedo instructions */
 
-static inline void rtl_lr(rtlreg_t* dest, int r, int len) {
-  switch(len) {
+static inline void rtl_lr(rtlreg_t* dest, int r, int width) {
+  switch (width) {
     case 4: rtl_lr_l(dest, r); return;
     case 1: rtl_lr_b(dest, r); return;
     case 2: rtl_lr_w(dest, r); return;
@@ -102,8 +102,8 @@ static inline void rtl_lr(rtlreg_t* dest, int r, int len) {
   }
 }
 
-static inline void rtl_sr(int r, int len, const rtlreg_t* src1) {
-  switch(len) {
+static inline void rtl_sr(int r, int width, const rtlreg_t* src1) {
+  switch (width) {
     case 4: rtl_sr_l(r, src1); return;
     case 1: rtl_sr_b(r, src1); return;
     case 2: rtl_sr_w(r, src1); return;
@@ -134,8 +134,8 @@ static inline void rtl_not(rtlreg_t* dest) {
   TODO();
 }
 
-static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int len) {
-  // dest <- signext(src1[(len * 8 - 1) .. 0])
+static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
+  // dest <- signext(src1[(width * 8 - 1) .. 0])
   TODO();
 }
 
@@ -166,24 +166,24 @@ static inline void rtl_neq0(rtlreg_t* dest, const rtlreg_t* src1) {
   TODO();
 }
 
-static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int len) {
-  // dest <- src1[len * 8 - 1]
+static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
+  // dest <- src1[width * 8 - 1]
   TODO();
 }
 
-static inline void rtl_update_ZF(const rtlreg_t* result, int len) {
-  // eflags.ZF <- is_zero(result[len * 8 - 1 .. 0])
+static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
+  // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
   TODO();
 }
 
-static inline void rtl_update_SF(const rtlreg_t* result, int len) {
-  // eflags.SF <- is_sign(result[len * 8 - 1 .. 0])
+static inline void rtl_update_SF(const rtlreg_t* result, int width) {
+  // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
   TODO();
 }
 
-static inline void rtl_update_ZFSF(const rtlreg_t* result, int len) {
-  rtl_update_ZF(result, len);
-  rtl_update_SF(result, len);
+static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {
+  rtl_update_ZF(result, width);
+  rtl_update_SF(result, width);
 }
 
 #endif
