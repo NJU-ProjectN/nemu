@@ -39,8 +39,8 @@ make_EHelper(nemu_trap) {
       (cpu.eax == 0 ? "GOOD" : "BAD"), cpu.eip);
   nemu_state = NEMU_END;
 
-#ifdef CROSS_CHECK
-  extern void cross_check_skip_qemu();
-  cross_check_skip_qemu();
+#ifdef DIFF_TEST
+  extern void diff_test_skip_qemu();
+  diff_test_skip_qemu();
 #endif
 }

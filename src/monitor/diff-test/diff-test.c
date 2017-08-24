@@ -17,8 +17,8 @@ void gdb_exit(void);
 static bool is_skip_qemu;
 static bool is_skip_nemu;
 
-void cross_check_skip_qemu() { is_skip_qemu = true; }
-void cross_check_skip_nemu() { is_skip_nemu = true; }
+void diff_test_skip_qemu() { is_skip_qemu = true; }
+void diff_test_skip_nemu() { is_skip_nemu = true; }
 
 #define regcpy_from_nemu(regs) \
   do { \
@@ -63,7 +63,7 @@ static uint8_t mbr[] = {
   0x17, 0x00, 0x2c, 0x7c, 0x00, 0x00
 };
 
-void init_check(void) {
+void init_difftest(void) {
   int ppid_before_fork = getpid();
   int pid = fork();
   if (pid == -1) {
@@ -126,7 +126,7 @@ void init_qemu_reg() {
   assert(ok == 1);
 }
 
-void check_step(uint32_t eip) {
+void difftest_step(uint32_t eip) {
   union gdb_regs r;
   bool diff = false;
 

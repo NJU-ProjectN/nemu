@@ -1,7 +1,7 @@
 #include "cpu/exec.h"
 
-void cross_check_skip_qemu();
-void cross_check_skip_nemu();
+void diff_test_skip_qemu();
+void diff_test_skip_nemu();
 
 make_EHelper(lidt) {
   TODO();
@@ -20,8 +20,8 @@ make_EHelper(mov_cr2r) {
 
   print_asm("movl %%cr%d,%%%s", id_src->reg, reg_name(id_dest->reg, 4));
 
-#ifdef CROSS_CHECK
-  cross_check_skip_qemu();
+#ifdef DIFF_TEST
+  diff_test_skip_qemu();
 #endif
 }
 
@@ -30,8 +30,8 @@ make_EHelper(int) {
 
   print_asm("int %s", id_dest->str);
 
-#ifdef CROSS_CHECK
-  cross_check_skip_nemu();
+#ifdef DIFF_TEST
+  diff_test_skip_nemu();
 #endif
 }
 
@@ -49,8 +49,8 @@ make_EHelper(in) {
 
   print_asm_template2(in);
 
-#ifdef CROSS_CHECK
-  cross_check_skip_qemu();
+#ifdef DIFF_TEST
+  diff_test_skip_qemu();
 #endif
 }
 
@@ -59,7 +59,7 @@ make_EHelper(out) {
 
   print_asm_template2(out);
 
-#ifdef CROSS_CHECK
-  cross_check_skip_qemu();
+#ifdef DIFF_TEST
+  diff_test_skip_qemu();
 #endif
 }

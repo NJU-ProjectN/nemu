@@ -2,7 +2,7 @@
 #define __COMMON_H__
 
 #define DEBUG
-//#define CROSS_CHECK
+//#define DIFF_TEST
 
 /* You will define this macro in PA2 */
 //#define HAS_IOE

@@ -3,7 +3,7 @@
 
 #define ENTRY_START 0x100000
 
-void init_check();
+void init_difftest();
 void init_regex();
 void init_wp_pool();
 void init_device();
@@ -74,7 +74,7 @@ static inline void load_img() {
     fclose(fp);
   }
 
-#ifdef CROSS_CHECK
+#ifdef DIFF_TEST
   gdb_memcpy_to_qemu(ENTRY_START, guest_to_host(ENTRY_START), size);
 #endif
 }
@@ -83,7 +83,7 @@ static inline void restart() {
   /* Set the initial instruction pointer. */
   cpu.eip = ENTRY_START;
 
-#ifdef CROSS_CHECK
+#ifdef DIFF_TEST
   init_qemu_reg();
 #endif
 }
@@ -116,9 +116,9 @@ int init_monitor(int argc, char *argv[]) {
   /* Test the implementation of the `CPU_state' structure. */
   reg_test();
 
-#ifdef CROSS_CHECK
-  /* Fork a child process to perform cross checking. */
-  init_check();
+#ifdef DIFF_TEST
+  /* Fork a child process to perform differential testing. */
+  init_difftest();
 #endif
 
   /* Load the image to memory. */

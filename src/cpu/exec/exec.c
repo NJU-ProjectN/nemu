@@ -242,14 +242,14 @@ void exec_wrapper(bool print_flag) {
   }
 #endif
 
-#ifdef CROSS_CHECK
+#ifdef DIFF_TEST
   uint32_t eip = cpu.eip;
 #endif
 
   update_eip();
 
-#ifdef CROSS_CHECK
-  void check_step(uint32_t);
-  check_step(eip);
+#ifdef DIFF_TEST
+  void difftest_step(uint32_t);
+  difftest_step(eip);
 #endif
 }
