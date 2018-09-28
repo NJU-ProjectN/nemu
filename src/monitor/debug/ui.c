@@ -82,8 +82,7 @@ void ui_mainloop(int is_batch_mode) {
     return;
   }
 
-  while (1) {
-    char *str = rl_gets();
+  for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */
