@@ -36,7 +36,7 @@ extern FILE* log_fp;
       fprintf(stderr, "\33[1;31m"); \
       fprintf(stderr, __VA_ARGS__); \
       fprintf(stderr, "\33[0m\n"); \
-      assert(0); \
+      assert(cond); \
     } \
   } while (0)
 
