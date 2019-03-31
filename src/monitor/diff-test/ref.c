@@ -1,5 +1,6 @@
 #include "nemu.h"
-#include "diff-test.h"
+#include "monitor/diff-test.h"
+#include "isa/diff-test.h"
 
 void cpu_exec(uint64_t);
 

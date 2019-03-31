@@ -1,33 +1,34 @@
 #!/bin/bash
 
-nemu=build/nemu
+ISA=${1#*ISA=}
+nemu=build/$ISA-nemu
 
 echo "compiling NEMU..."
-if make &> /dev/null; then
+if make ISA=$ISA; then
   echo "NEMU compile OK"
 else
-  echo "testcases compile error... exit..."
+  echo "NEMU compile error... exit..."
   exit
 fi
 
 echo "compiling testcases..."
-if make -C $AM_HOME/tests/cputest ARCH=x86-nemu &> /dev/null; then
+if make -C $AM_HOME/tests/cputest ARCH=$ISA-nemu &> /dev/null; then
   echo "testcases compile OK"
 else
   echo "testcases compile error... exit..."
   exit
 fi
 
-files=`ls $AM_HOME/tests/cputest/build/*-x86-nemu.bin`
+files=`ls $AM_HOME/tests/cputest/build/*-$ISA-nemu.bin`
 ori_log="build/nemu-log.txt"
 
 for file in $files; do
-  base=`basename $file | sed -e 's/-x86-nemu.bin//'`
+  base=`basename $file | sed -e "s/-$ISA-nemu.bin//"`
   printf "[%14s] " $base
   logfile=$base-log.txt
-  $nemu -b -l $ori_log $file &> $logfile
+  make ISA=$ISA run ARGS="-b -l $ori_log $file" &> $logfile
 
-  if (grep 'nemu: HIT GOOD TRAP' $logfile > /dev/null) then
+  if (grep 'nemu: .*HIT GOOD TRAP' $logfile > /dev/null) then
     echo -e "\033[1;32mPASS!\033[0m"
     rm $logfile
   else

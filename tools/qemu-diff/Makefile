@@ -1,7 +1,16 @@
-INC_DIR += ./include
+ifneq ($(MAKECMDGOALS),clean) # ignore check for make clean
+ISA ?= x86
+ISAS = $(shell ls src/isa/)
+
+ifeq ($(filter $(ISAS), $(ISA)), ) # ISA must be valid
+$(error Invalid ISA. Supported: $(ISAS))
+endif
+endif
+
+INC_DIR += ./include ./src/isa/$(ISA)/include
 BUILD_DIR ?= ./build
-OBJ_DIR ?= $(BUILD_DIR)/obj
-BINARY ?= $(BUILD_DIR)/qemu-so
+OBJ_DIR ?= $(BUILD_DIR)/obj-$(ISA)
+BINARY ?= $(BUILD_DIR)/$(ISA)-qemu-so
 
 .DEFAULT_GOAL = app
 
@@ -9,10 +18,11 @@ BINARY ?= $(BUILD_DIR)/qemu-so
 CC = gcc
 LD = gcc
 INCLUDES  = $(addprefix -I, $(INC_DIR))
-CFLAGS   += -O2 -fPIC -MMD -Wall -Werror -ggdb3 $(INCLUDES) -fomit-frame-pointer
+CFLAGS   += -O2 -fPIC -MMD -Wall -Werror -DNEMU_HOME=$(NEMU_HOME) -ggdb3 $(INCLUDES) -fomit-frame-pointer
 
 # Files to be compiled
-SRCS = $(shell find src/ -name "*.c")
+SRCS = $(shell find src/ -name "*.c" | grep -v "isa")
+SRCS += $(shell find src/isa/$(ISA) -name "*.c")
 OBJS = $(SRCS:src/%.c=$(OBJ_DIR)/%.o)
 
 # Compilation patterns

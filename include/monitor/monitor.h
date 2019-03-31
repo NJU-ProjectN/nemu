@@ -1,9 +1,16 @@
 #ifndef __MONITOR_H__
 #define __MONITOR_H__
 
-enum { NEMU_STOP, NEMU_RUNNING, NEMU_END, NEMU_ABORT };
-extern int nemu_state;
+#include "common.h"
 
-#define ENTRY_START 0x100000
+enum { NEMU_STOP, NEMU_RUNNING, NEMU_END, NEMU_ABORT };
+
+typedef struct {
+  int state;
+  vaddr_t halt_pc;
+  uint32_t halt_ret;
+} NEMUState;
+
+extern NEMUState nemu_state;
 
 #endif

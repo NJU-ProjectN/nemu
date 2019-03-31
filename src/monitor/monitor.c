@@ -2,12 +2,11 @@
 #include "monitor/monitor.h"
 #include <unistd.h>
 
-void init_difftest(char *ref_so_file, long img_size);
+void init_isa();
 void init_regex();
 void init_wp_pool();
 void init_device();
-
-void reg_test();
+void init_difftest(char *ref_so_file, long img_size);
 
 FILE *log_fp = NULL;
 static char *log_file = NULL;
@@ -34,34 +33,18 @@ static inline void welcome() {
 #endif
 
   Log("Build time: %s, %s", __TIME__, __DATE__);
-  printf("Welcome to NEMU!\n");
+  printf("Welcome to NEMU for \33[1;41m\33[1;33m%s\33[0m!\n", str(__ISA__));
   printf("For help, type \"help\"\n");
-}
-
-static inline int load_default_img() {
-  const uint8_t img []  = {
-    0xb8, 0x34, 0x12, 0x00, 0x00,        // 100000:  movl  $0x1234,%eax
-    0xb9, 0x27, 0x00, 0x10, 0x00,        // 100005:  movl  $0x100027,%ecx
-    0x89, 0x01,                          // 10000a:  movl  %eax,(%ecx)
-    0x66, 0xc7, 0x41, 0x04, 0x01, 0x00,  // 10000c:  movw  $0x1,0x4(%ecx)
-    0xbb, 0x02, 0x00, 0x00, 0x00,        // 100012:  movl  $0x2,%ebx
-    0x66, 0xc7, 0x84, 0x99, 0x00, 0xe0,  // 100017:  movw  $0x1,-0x2000(%ecx,%ebx,4)
-    0xff, 0xff, 0x01, 0x00,
-    0xb8, 0x00, 0x00, 0x00, 0x00,        // 100021:  movl  $0x0,%eax
-    0xd6,                                // 100026:  nemu_trap
-  };
-
-  Log("No image is given. Use the default build-in image.");
-
-  memcpy(guest_to_host(ENTRY_START), img, sizeof(img));
-
-  return sizeof(img);
 }
 
 static inline long load_img() {
   long size;
   if (img_file == NULL) {
-    size = load_default_img();
+    Log("No image is given. Use the default build-in image.");
+    extern uint8_t isa_default_img[];
+    extern long isa_default_img_size;
+    size = isa_default_img_size;
+    memcpy(guest_to_host(IMAGE_START), isa_default_img, size);
   }
   else {
     int ret;
@@ -75,17 +58,12 @@ static inline long load_img() {
     size = ftell(fp);
 
     fseek(fp, 0, SEEK_SET);
-    ret = fread(guest_to_host(ENTRY_START), size, 1, fp);
+    ret = fread(guest_to_host(IMAGE_START), size, 1, fp);
     assert(ret == 1);
 
     fclose(fp);
   }
   return size;
-}
-
-static inline void restart() {
-  /* Set the initial instruction pointer. */
-  cpu.eip = ENTRY_START;
 }
 
 static inline void parse_args(int argc, char *argv[]) {
@@ -114,14 +92,11 @@ int init_monitor(int argc, char *argv[]) {
   /* Open the log file. */
   init_log();
 
-  /* Test the implementation of the `CPU_state' structure. */
-  reg_test();
-
   /* Load the image to memory. */
   long img_size = load_img();
 
-  /* Initialize this virtual computer system. */
-  restart();
+  /* Perform ISA dependent initialization. */
+  init_isa();
 
   /* Compile the regular expressions. */
   init_regex();
@@ -132,6 +107,7 @@ int init_monitor(int argc, char *argv[]) {
   /* Initialize devices. */
   init_device();
 
+  /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size);
 
   /* Display welcome message. */

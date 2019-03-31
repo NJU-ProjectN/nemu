@@ -1,7 +1,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#define DEBUG
+//#define DEBUG
 //#define DIFF_TEST
 
 #if _SHARE
@@ -11,7 +11,7 @@
 #endif
 
 /* You will define this macro in PA2 */
-//#define HAS_IOE
+#define HAS_IOE
 
 #include <stdint.h>
 #include <assert.h>

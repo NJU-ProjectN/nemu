@@ -1,15 +1,26 @@
 NAME = nemu
-INC_DIR += ./include
+
+ifneq ($(MAKECMDGOALS),clean) # ignore check for make clean
+ISA ?= x86
+ISAS = $(shell ls src/isa/)
+$(info Building $(ISA)-$(NAME))
+
+ifeq ($(filter $(ISAS), $(ISA)), ) # ISA must be valid
+$(error Invalid ISA. Supported: $(ISAS))
+endif
+endif
+
+INC_DIR += ./include ./src/isa/$(ISA)/include
 BUILD_DIR ?= ./build
 
-ifeq ($(SHARE), 1)
+ifdef SHARE
 SO = -so
 SO_CFLAGS = -fPIC -D_SHARE=1
 SO_LDLAGS = -shared -fPIC
 endif
 
-OBJ_DIR ?= $(BUILD_DIR)/obj$(SO)
-BINARY ?= $(BUILD_DIR)/$(NAME)$(SO)
+OBJ_DIR ?= $(BUILD_DIR)/obj-$(ISA)$(SO)
+BINARY ?= $(BUILD_DIR)/$(ISA)-$(NAME)$(SO)
 
 include Makefile.git
 
@@ -19,11 +30,23 @@ include Makefile.git
 CC = gcc
 LD = gcc
 INCLUDES  = $(addprefix -I, $(INC_DIR))
-CFLAGS   += -O2 -MMD -Wall -Werror -ggdb3 $(INCLUDES) -fomit-frame-pointer
-CFLAGS   += -DDIFF_TEST_QEMU
+CFLAGS   += -O2 -MMD -Wall -Werror -ggdb3 $(INCLUDES) -D__ISA__=$(ISA) -fomit-frame-pointer
+
+ifdef DIFFTEST
+CFLAGS   += -DDIFF_TEST -DDIFF_TEST_QEMU
+
+QEMU_DIFF_PATH = $(NEMU_HOME)/tools/qemu-diff
+QEMU_SO = $(QEMU_DIFF_PATH)/build/$(ISA)-qemu-so
+
+$(QEMU_SO):
+	$(MAKE) -C $(QEMU_DIFF_PATH)
+
+ARGS_DIFFTEST = -d $(QEMU_SO)
+endif
 
 # Files to be compiled
-SRCS = $(shell find src/ -name "*.c")
+SRCS = $(shell find src/ -name "*.c" | grep -v "isa")
+SRCS += $(shell find src/isa/$(ISA) -name "*.c")
 OBJS = $(SRCS:src/%.c=$(OBJ_DIR)/%.o)
 
 # Compilation patterns
@@ -36,31 +59,34 @@ $(OBJ_DIR)/%.o: src/%.c
 # Depencies
 -include $(OBJS:.o=.d)
 
-# Some convinient rules
+# Some convenient rules
 
-.PHONY: app run clean
+.PHONY: app run gdb clean run-env
 app: $(BINARY)
 
 override ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
-override ARGS += -d $(NEMU_HOME)/tools/qemu-diff/build/qemu-so
+override ARGS += $(ARGS_DIFFTEST)
 
 # Command to execute NEMU
-NEMU_EXEC := $(BINARY) $(ARGS)
+IMG :=
+NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 $(BINARY): $(OBJS)
 	$(call git_commit, "compile")
 	@echo + LD $@
 	@$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ -lSDL2 -lreadline -ldl
 
-run: $(BINARY)
+run-env: $(BINARY) $(QEMU_SO)
+
+run: run-env
 	$(call git_commit, "run")
 	$(NEMU_EXEC)
 
-gdb: $(BINARY)
+gdb: run-env
 	$(call git_commit, "gdb")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
-clean: 
+clean:
 	-rm -rf $(BUILD_DIR)
 	$(MAKE) -C tools/gen-expr clean
 	$(MAKE) -C tools/qemu-diff clean

@@ -10,4 +10,6 @@
 #define concat4(x, y, z, w) concat3(concat(x, y), z, w)
 #define concat5(x, y, z, v, w) concat4(concat(x, y), z, v, w)
 
+#define MAP(c, f) c(f)
+
 #endif

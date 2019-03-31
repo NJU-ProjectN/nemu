@@ -44,7 +44,7 @@ bool gdb_memcpy_to_qemu(uint32_t dest, void *src, int len) {
   return ok;
 }
 
-bool gdb_getregs(union gdb_regs *r) {
+bool gdb_getregs(union isa_gdb_regs *r) {
   gdb_send(conn, (const uint8_t *)"g", 1);
   size_t size;
   uint8_t *reply = gdb_recv(conn, &size);
@@ -52,7 +52,7 @@ bool gdb_getregs(union gdb_regs *r) {
   int i;
   uint8_t *p = reply;
   uint8_t c;
-  for (i = 0; i < sizeof(union gdb_regs) / sizeof(uint32_t); i ++) {
+  for (i = 0; i < sizeof(union isa_gdb_regs) / sizeof(uint32_t); i ++) {
     c = p[8];
     p[8] = '\0';
     r->array[i] = gdb_decode_hex_str(p);
@@ -65,8 +65,8 @@ bool gdb_getregs(union gdb_regs *r) {
   return true;
 }
 
-bool gdb_setregs(union gdb_regs *r) {
-  int len = sizeof(union gdb_regs);
+bool gdb_setregs(union isa_gdb_regs *r) {
+  int len = sizeof(union isa_gdb_regs);
   char *buf = malloc(len * 2 + 128);
   assert(buf != NULL);
   buf[0] = 'G';

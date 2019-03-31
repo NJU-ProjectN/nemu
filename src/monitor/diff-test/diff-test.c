@@ -2,18 +2,34 @@
 
 #include "nemu.h"
 #include "monitor/monitor.h"
-#include "diff-test.h"
 
-static void (*ref_difftest_memcpy_from_dut)(paddr_t dest, void *src, size_t n);
-static void (*ref_difftest_getregs)(void *c);
-static void (*ref_difftest_setregs)(const void *c);
-static void (*ref_difftest_exec)(uint64_t n);
+void (*ref_difftest_memcpy_from_dut)(paddr_t dest, void *src, size_t n) = NULL;
+void (*ref_difftest_getregs)(void *c) = NULL;
+void (*ref_difftest_setregs)(const void *c) = NULL;
+void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 static bool is_skip_ref;
 static bool is_skip_dut;
+static bool is_detach;
 
-void difftest_skip_ref() { is_skip_ref = true; }
-void difftest_skip_dut() { is_skip_dut = true; }
+// this is used to let ref skip instructions which
+// can not produce consistent behavior with NEMU
+void difftest_skip_ref() {
+  is_skip_ref = true;
+}
+
+// this is used to deal with instruction packing in QEMU.
+// Sometimes letting QEMU step once will execute multiple instructions.
+// We should skip checking until NEMU's pc catches up with QEMU's pc.
+void difftest_skip_dut() {
+  if (is_skip_dut) return;
+
+  ref_difftest_exec(1);
+  is_skip_dut = true;
+}
+
+bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
+void isa_difftest_attach(void);
 
 void init_difftest(char *ref_so_file, long img_size) {
 #ifndef DIFF_TEST
@@ -47,15 +63,31 @@ void init_difftest(char *ref_so_file, long img_size) {
       "If it is not necessary, you can turn it off in include/common.h.", ref_so_file);
 
   ref_difftest_init();
-  ref_difftest_memcpy_from_dut(ENTRY_START, guest_to_host(ENTRY_START), img_size);
+  ref_difftest_memcpy_from_dut(PC_START, guest_to_host(IMAGE_START), img_size);
   ref_difftest_setregs(&cpu);
 }
 
-void difftest_step(uint32_t eip) {
+static void checkregs(CPU_state *ref, vaddr_t pc) {
+  // TODO: Check the registers state with QEMU.
+  if (!isa_difftest_checkregs(ref, pc)) {
+    extern void isa_reg_display(void);
+    isa_reg_display();
+    nemu_state.state = NEMU_ABORT;
+    nemu_state.halt_pc = pc;
+  }
+}
+
+void difftest_step(vaddr_t ori_pc, vaddr_t next_pc) {
   CPU_state ref_r;
 
+  if (is_detach) return;
+
   if (is_skip_dut) {
-    is_skip_dut = false;
+    ref_difftest_getregs(&ref_r);
+    if (ref_r.pc == next_pc) {
+      checkregs(&ref_r, next_pc);
+      is_skip_dut = false;
+    }
     return;
   }
 
@@ -69,7 +101,21 @@ void difftest_step(uint32_t eip) {
   ref_difftest_exec(1);
   ref_difftest_getregs(&ref_r);
 
-  // TODO: Check the registers state with the reference design.
-  // Set `nemu_state` to `NEMU_ABORT` if they are not the same.
-  TODO();
+  checkregs(&ref_r, ori_pc);
+}
+
+void difftest_detach() {
+  is_detach = true;
+}
+
+void difftest_attach() {
+#ifndef DIFF_TEST
+  return;
+#endif
+
+  is_detach = false;
+  is_skip_ref = false;
+  is_skip_dut = false;
+
+  isa_difftest_attach();
 }
