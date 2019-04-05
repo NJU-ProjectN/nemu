@@ -32,11 +32,6 @@ typedef struct {
   vaddr_t jmp_pc;
   Operand src, dest, src2;
   struct ISADecodeInfo isa;
-#ifdef DEBUG
-  char assembly[80];
-  char asm_buf[128];
-  char *p;
-#endif
 } DecodeInfo;
 
 void operand_write(Operand *, rtlreg_t *);

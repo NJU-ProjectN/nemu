@@ -28,7 +28,8 @@ static inline uint32_t instr_fetch(vaddr_t *pc, int len) {
   uint8_t *p_instr = (void *)&instr;
   int i;
   for (i = 0; i < len; i ++) {
-    decinfo.p += sprintf(decinfo.p, "%02x ", p_instr[i]);
+    extern char log_bytebuf[];
+    strcatf(log_bytebuf, "%02x ", p_instr[i]);
   }
 #endif
   (*pc) += len;
@@ -50,7 +51,11 @@ static inline void update_pc(void) {
 void display_inv_msg(vaddr_t pc);
 
 #ifdef DEBUG
-#define print_asm(...) Assert(snprintf(decinfo.assembly, 80, __VA_ARGS__) < 80, "buffer overflow!")
+#define print_asm(...) \
+  do { \
+    extern char log_asmbuf[]; \
+    strcatf(log_asmbuf, __VA_ARGS__); \
+  } while (0)
 #else
 #define print_asm(...)
 #endif

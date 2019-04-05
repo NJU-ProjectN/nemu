@@ -2,25 +2,17 @@
 #include "monitor/monitor.h"
 #include <unistd.h>
 
+void init_log(const char *log_file);
 void init_isa();
 void init_regex();
 void init_wp_pool();
 void init_device();
 void init_difftest(char *ref_so_file, long img_size);
 
-FILE *log_fp = NULL;
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int is_batch_mode = false;
-
-static inline void init_log() {
-#ifdef DEBUG
-  if (log_file == NULL) return;
-  log_fp = fopen(log_file, "w");
-  Assert(log_fp, "Can not open '%s'", log_file);
-#endif
-}
 
 static inline void welcome() {
 #ifdef DEBUG
@@ -90,7 +82,7 @@ int init_monitor(int argc, char *argv[]) {
   parse_args(argc, argv);
 
   /* Open the log file. */
-  init_log();
+  init_log(log_file);
 
   /* Load the image to memory. */
   long img_size = load_img();
