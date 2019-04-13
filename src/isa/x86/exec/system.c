@@ -27,7 +27,7 @@ make_EHelper(int) {
 
   print_asm("int %s", id_dest->str);
 
-#if defined(DIFF_TEST) && defined(DIFF_TEST_QEMU)
+#if defined(DIFF_TEST)
   difftest_skip_dut();
 #endif
 }

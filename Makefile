@@ -32,17 +32,11 @@ LD = gcc
 INCLUDES  = $(addprefix -I, $(INC_DIR))
 CFLAGS   += -O2 -MMD -Wall -Werror -ggdb3 $(INCLUDES) -D__ISA__=$(ISA) -fomit-frame-pointer
 
-ifdef DIFFTEST
-CFLAGS   += -DDIFF_TEST -DDIFF_TEST_QEMU
-
 QEMU_DIFF_PATH = $(NEMU_HOME)/tools/qemu-diff
 QEMU_SO = $(QEMU_DIFF_PATH)/build/$(ISA)-qemu-so
 
 $(QEMU_SO):
 	$(MAKE) -C $(QEMU_DIFF_PATH)
-
-ARGS_DIFFTEST = -d $(QEMU_SO)
-endif
 
 # Files to be compiled
 SRCS = $(shell find src/ -name "*.c" | grep -v "isa")
@@ -65,7 +59,7 @@ $(OBJ_DIR)/%.o: src/%.c
 app: $(BINARY)
 
 override ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
-override ARGS += $(ARGS_DIFFTEST)
+override ARGS += -d $(QEMU_SO)
 
 # Command to execute NEMU
 IMG :=
