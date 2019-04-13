@@ -6,7 +6,7 @@
 #include "rtl/relop.h"
 #include "rtl/rtl-wrapper.h"
 
-extern rtlreg_t s0, s1, t0, t1, at;
+extern rtlreg_t s0, s1, t0, t1, ir;
 
 void decinfo_set_jmp(bool is_jmp);
 bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2);
@@ -28,8 +28,8 @@ static inline void interpret_rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   /* Actually those of imm version are pseudo rtl instructions,
    * but we define them here in the same macro */ \
   static inline void concat(rtl_, name ## i) (rtlreg_t* dest, const rtlreg_t* src1, int imm) { \
-    rtl_li(&at, imm); \
-    rtl_ ## name (dest, src1, &at); \
+    rtl_li(&ir, imm); \
+    rtl_ ## name (dest, src1, &ir); \
   }
 
 make_rtl_arith_logic(add)
@@ -142,8 +142,8 @@ static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
 
 static inline void rtl_setrelopi(uint32_t relop, rtlreg_t *dest,
     const rtlreg_t *src1, int imm) {
-  rtl_li(&at, imm);
-  rtl_setrelop(relop, dest, src1, &at);
+  rtl_li(&ir, imm);
+  rtl_setrelop(relop, dest, src1, &ir);
 }
 
 static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
