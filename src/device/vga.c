@@ -21,7 +21,7 @@ static SDL_Texture *texture;
 static uint32_t (*vmem) [SCREEN_W];
 static uint32_t *screensize_port_base;
 
-void update_screen() {
+static inline void update_screen() {
   SDL_UpdateTexture(texture, NULL, vmem, SCREEN_W * sizeof(vmem[0][0]));
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -29,9 +29,8 @@ void update_screen() {
 }
 
 static void vga_io_handler(uint32_t offset, int len, bool is_write) {
-  if (offset == 4 && len == 4 && is_write) {
-    update_screen();
-  }
+  // TODO: call `update_screen()` when writing to the sync register
+  TODO();
 }
 
 void init_vga() {
