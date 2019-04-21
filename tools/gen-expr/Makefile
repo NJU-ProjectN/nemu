@@ -5,4 +5,4 @@ $(APP): gen-expr.c
 
 .PHONY: clean
 clean:
-	-rm $(APP) .code.c .expr 2> /dev/null
+	-rm $(APP) 2> /dev/null

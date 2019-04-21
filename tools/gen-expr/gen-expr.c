@@ -33,15 +33,15 @@ int main(int argc, char *argv[]) {
 
     sprintf(code_buf, code_format, buf);
 
-    FILE *fp = fopen(".code.c", "w");
+    FILE *fp = fopen("/tmp/.code.c", "w");
     assert(fp != NULL);
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc .code.c -o .expr");
+    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
     if (ret != 0) continue;
 
-    fp = popen("./.expr", "r");
+    fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
     int result;
