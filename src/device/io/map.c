@@ -4,7 +4,7 @@
 
 #define IO_SPACE_MAX (1024 * 1024)
 
-static uint8_t io_space[IO_SPACE_MAX] PG_ALIGN;
+static uint8_t io_space[IO_SPACE_MAX] PG_ALIGN = {};
 static uint8_t *p_space = io_space;
 
 uint8_t* new_space(int size) {

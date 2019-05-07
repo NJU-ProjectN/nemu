@@ -9,9 +9,9 @@ void init_log(const char *log_file) {
   Assert(log_fp, "Can not open '%s'", log_file);
 }
 
-char log_bytebuf[80];
-char log_asmbuf[80];
-static char tempbuf[256];
+char log_bytebuf[80] = {};
+char log_asmbuf[80] = {};
+static char tempbuf[256] = {};
 
 void strcatf(char *buf, const char *fmt, ...) {
   va_list ap;

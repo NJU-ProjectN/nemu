@@ -1,7 +1,7 @@
 #include "nemu.h"
 #include "device/map.h"
 
-uint8_t pmem[PMEM_SIZE] PG_ALIGN;
+uint8_t pmem[PMEM_SIZE] PG_ALIGN = {};
 
 static IOMap pmem_map = {
   .name = "pmem",

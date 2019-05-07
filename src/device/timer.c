@@ -12,7 +12,7 @@ void timer_intr() {
   }
 }
 
-static uint32_t *rtc_port_base;
+static uint32_t *rtc_port_base = NULL;
 
 void rtc_io_handler(uint32_t offset, int len, bool is_write) {
   assert(offset == 0);

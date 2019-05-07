@@ -6,7 +6,7 @@
 #define I8042_DATA_MMIO 0x4060
 #define KEYBOARD_IRQ 1
 
-static uint32_t *i8042_data_port_base;
+static uint32_t *i8042_data_port_base = NULL;
 
 // Note that this is not the standard
 #define _KEYS(f) \
@@ -31,7 +31,7 @@ static uint32_t keymap[256] = {
 };
 
 #define KEY_QUEUE_LEN 1024
-static int key_queue[KEY_QUEUE_LEN];
+static int key_queue[KEY_QUEUE_LEN] = {};
 static int key_f = 0, key_r = 0;
 
 #define KEYDOWN_MASK 0x8000

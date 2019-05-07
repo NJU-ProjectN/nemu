@@ -9,7 +9,7 @@
 #define TIMER_HZ 100
 #define VGA_HZ 50
 
-static struct itimerval it;
+static struct itimerval it = {};
 static int device_update_flag = false;
 
 void init_serial();
@@ -17,9 +17,8 @@ void init_timer();
 void init_vga();
 void init_i8042();
 
-extern void timer_intr();
-extern void send_key(uint8_t, bool);
-
+void timer_intr();
+void send_key(uint8_t, bool);
 
 static void timer_sig_handler(int signum) {
   timer_intr();

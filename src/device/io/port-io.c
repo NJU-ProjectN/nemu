@@ -4,7 +4,7 @@
 #define PORT_IO_SPACE_MAX 65535
 
 #define NR_MAP 8
-static IOMap maps[NR_MAP];
+static IOMap maps[NR_MAP] = {};
 static int nr_map = 0;
 
 /* device interface */

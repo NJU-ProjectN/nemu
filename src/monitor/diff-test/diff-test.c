@@ -8,9 +8,9 @@ void (*ref_difftest_getregs)(void *c) = NULL;
 void (*ref_difftest_setregs)(const void *c) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
-static bool is_skip_ref;
-static bool is_skip_dut;
-static bool is_detach;
+static bool is_skip_ref = false;
+static bool is_skip_dut = false;
+static bool is_detach = false;
 
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU

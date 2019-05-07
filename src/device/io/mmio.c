@@ -3,7 +3,7 @@
 
 #define NR_MAP 8
 
-static IOMap maps[NR_MAP];
+static IOMap maps[NR_MAP] = {};
 static int nr_map = 0;
 
 /* device interface */
@@ -14,7 +14,6 @@ void add_mmio_map(char *name, paddr_t addr, uint8_t* space, int len, io_callback
   Log("Add mmio map '%s' at [0x%08x, 0x%08x]", maps[nr_map].name, maps[nr_map].low, maps[nr_map].high);
 
   nr_map ++;
-
 }
 
 /* bus interface */

@@ -7,7 +7,7 @@
 #define SERIAL_MMIO 0x43F8
 #define CH_OFFSET 0
 
-static uint8_t *serial_ch_base;
+static uint8_t *serial_ch_base = NULL;
 
 static void serial_ch_io_handler(uint32_t offset, int len, bool is_write) {
   assert(offset == 0);
