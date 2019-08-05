@@ -25,7 +25,7 @@ static inline void welcome() {
 #endif
 
   Log("Build time: %s, %s", __TIME__, __DATE__);
-  printf("Welcome to NEMU for \33[1;41m\33[1;33m%s\33[0m!\n", str(__ISA__));
+  printf("Welcome to \33[1;41m\33[1;33m%s\33[0m-NEMU!\n", str(__ISA__));
   printf("For help, type \"help\"\n");
 }
 
