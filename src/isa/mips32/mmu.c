@@ -1,10 +1,6 @@
 #include "nemu.h"
 
 static inline paddr_t va2pa(vaddr_t addr, bool write) {
-  if ((addr & 0xa0000000u) == 0xa0000000u) {
-    return addr & ~0xa0000000u;
-  }
-
   return addr;
 }
 
