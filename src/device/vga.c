@@ -5,12 +5,12 @@
 #include "device/map.h"
 #include <SDL2/SDL.h>
 
-#define VMEM 0x40000
+#define VMEM 0xa0000000
 
 #define SCREEN_PORT 0x100 // Note that this is not the standard
-#define SCREEN_MMIO 0x4100
+#define SCREEN_MMIO 0xa1000100
 #define SYNC_PORT 0x104 // Note that this is not the standard
-#define SYNC_MMIO 0x4104
+#define SYNC_MMIO 0xa1000104
 #define SCREEN_H 300
 #define SCREEN_W 400
 

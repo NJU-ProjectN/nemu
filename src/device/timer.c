@@ -3,7 +3,7 @@
 #include <sys/time.h>
 
 #define RTC_PORT 0x48   // Note that this is not the standard
-#define RTC_MMIO 0x4048
+#define RTC_MMIO 0xa1000048
 
 void timer_intr() {
   if (nemu_state.state == NEMU_RUNNING) {

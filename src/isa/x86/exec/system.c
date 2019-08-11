@@ -28,7 +28,7 @@ make_EHelper(int) {
   print_asm("int %s", id_dest->str);
 
 #if defined(DIFF_TEST)
-  difftest_skip_dut();
+  difftest_skip_dut(1, 2);
 #endif
 }
 

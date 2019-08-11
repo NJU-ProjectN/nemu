@@ -21,4 +21,7 @@ void difftest_exec(uint64_t n) {
 }
 
 void difftest_init(void) {
+  /* Perform ISA dependent initialization. */
+  void init_isa();
+  init_isa();
 }

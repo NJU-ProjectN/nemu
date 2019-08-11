@@ -5,7 +5,7 @@
 #include "isa/diff-test.h"
 
 void difftest_skip_ref(void);
-void difftest_skip_dut(void);
+void difftest_skip_dut(int nr_ref, int nr_dut);
 
 extern void (*ref_difftest_memcpy_from_dut)(paddr_t dest, void *src, size_t n);
 extern void (*ref_difftest_getregs)(void *c);

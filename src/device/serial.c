@@ -4,7 +4,7 @@
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 
 #define SERIAL_PORT 0x3F8
-#define SERIAL_MMIO 0x43F8
+#define SERIAL_MMIO 0xa10003F8
 #define CH_OFFSET 0
 
 static uint8_t *serial_ch_base = NULL;
