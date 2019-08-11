@@ -9,7 +9,7 @@ void (*ref_difftest_setregs)(const void *c) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 static bool is_skip_ref = false;
-static bool is_skip_dut = false;
+static int skip_dut_nr_instr = 0;
 static bool is_detach = false;
 
 // this is used to let ref skip instructions which
@@ -21,11 +21,15 @@ void difftest_skip_ref() {
 // this is used to deal with instruction packing in QEMU.
 // Sometimes letting QEMU step once will execute multiple instructions.
 // We should skip checking until NEMU's pc catches up with QEMU's pc.
-void difftest_skip_dut() {
-  if (is_skip_dut) return;
+// The semantic is
+//   Let REF run `nr_ref` instructions first.
+//   We expect that DUT will catch up with REF within `nr_dut` instructions.
+void difftest_skip_dut(int nr_ref, int nr_dut) {
+  skip_dut_nr_instr += nr_dut;
 
-  ref_difftest_exec(1);
-  is_skip_dut = true;
+  while (nr_ref -- > 0) {
+    ref_difftest_exec(1);
+  }
 }
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
@@ -81,12 +85,16 @@ void difftest_step(vaddr_t ori_pc, vaddr_t next_pc) {
 
   if (is_detach) return;
 
-  if (is_skip_dut) {
+  if (skip_dut_nr_instr > 0) {
     ref_difftest_getregs(&ref_r);
     if (ref_r.pc == next_pc) {
       checkregs(&ref_r, next_pc);
-      is_skip_dut = false;
+      skip_dut_nr_instr = 0;
+      return;
     }
+    skip_dut_nr_instr --;
+    if (skip_dut_nr_instr == 0)
+      panic("can not catch up with ref.pc = %x at pc = %x", ref_r.pc, ori_pc);
     return;
   }
 
@@ -114,7 +122,7 @@ void difftest_attach() {
 
   is_detach = false;
   is_skip_ref = false;
-  is_skip_dut = false;
+  skip_dut_nr_instr = 0;
 
   isa_difftest_attach();
 }
