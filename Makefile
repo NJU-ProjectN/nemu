@@ -32,31 +32,52 @@ $(OBJ_DIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(SO_CFLAGS) -c -o $@ $<
 
+# Uncomment the below assignment for test
+# TESTCASE=dummy
+
+ifdef TESTCASE
+TEST_IMAGE=$(AM_HOME)/tests/cputest/build/$(TESTCASE)-x86-nemu.bin
+
+# Command to build testcase
+$(TEST_IMAGE): $(abspath $(TEST_IMAGE)/../..)/tests/$(TESTCASE).c
+	cd $(abspath $(@D)/..) && make ARCH=x86-nemu ALL=$(TESTCASE)
+endif
+
+# Qemu dynamic linked libraries
+QEMU_SO=$(NEMU_HOME)/tools/qemu-diff/build/qemu-so
+
+# Command to build qemu-so
+$(QEMU_SO): $(wildcard $(abspath $(QEMU_SO)/../../src)/*.c)
+	cd $(abspath $(@D)/..) && make
+
 
 # Depencies
 -include $(OBJS:.o=.d)
 
-# Some convinient rules
+# Some convenient rules
 
-.PHONY: app run clean
+.PHONY: app run gdb clean run-env
 app: $(BINARY)
 
 override ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
-override ARGS += -d $(NEMU_HOME)/tools/qemu-diff/build/qemu-so
+override ARGS += -d $(QEMU_SO)
 
 # Command to execute NEMU
-NEMU_EXEC := $(BINARY) $(ARGS)
+NEMU_EXEC := $(BINARY) $(ARGS) $(TEST_IMAGE)
+
 
 $(BINARY): $(OBJS)
 	$(call git_commit, "compile")
 	@echo + LD $@
 	@$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ -lSDL2 -lreadline -ldl
 
-run: $(BINARY)
+run-env: $(BINARY) $(TEST_IMAGE) $(QEMU_SO)
+
+run: run-env
 	$(call git_commit, "run")
 	$(NEMU_EXEC)
 
-gdb: $(BINARY)
+gdb: run-env
 	$(call git_commit, "gdb")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
