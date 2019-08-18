@@ -17,9 +17,7 @@ make_EHelper(mov_cr2r) {
 
   print_asm("movl %%cr%d,%%%s", id_src->reg, reg_name(id_dest->reg, 4));
 
-#if defined(DIFF_TEST)
   difftest_skip_ref();
-#endif
 }
 
 make_EHelper(int) {
@@ -27,9 +25,7 @@ make_EHelper(int) {
 
   print_asm("int %s", id_dest->str);
 
-#if defined(DIFF_TEST)
   difftest_skip_dut(1, 2);
-#endif
 }
 
 make_EHelper(iret) {

@@ -25,9 +25,7 @@ make_EHelper(inv) {
 }
 
 make_EHelper(nemu_trap) {
-#if defined(DIFF_TEST)
   difftest_skip_ref();
-#endif
 
   rtl_exit(NEMU_END, cpu.pc, cpu.eax);
 
