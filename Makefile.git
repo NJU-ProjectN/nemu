@@ -1,4 +1,5 @@
-STU_ID = 181220000
+STUID = 181220000
+STUNAME = 张三
 
 # DO NOT modify the following code!!!
 
@@ -8,6 +9,6 @@ GITFLAGS = -q --author='tracer-ics2019 <tracer@njuics.org>' --no-verify --allow-
 define git_commit
 	-@git add .. -A --ignore-errors
 	-@while (test -e .git/index.lock); do sleep 0.1; done
-	-@(echo "> $(1)" && echo $(STU_ID) && id -un && uname -a && uptime && (head -c 20 /dev/urandom | hexdump -v -e '"%02x"') && echo) | git commit -F - $(GITFLAGS)
+	-@(echo "> $(1)" && echo $(STUID) && id -un && uname -a && uptime && (head -c 20 /dev/urandom | hexdump -v -e '"%02x"') && echo) | git commit -F - $(GITFLAGS)
 	-@sync
 endef
