@@ -16,6 +16,14 @@ static bool is_detach = false;
 // can not produce consistent behavior with NEMU
 void difftest_skip_ref() {
   is_skip_ref = true;
+  // If such an instruction is one of the instruction packing in QEMU
+  // (see below), we end the process of catching up with QEMU's pc to
+  // keep the consistent behavior in our best.
+  // Note that this is still not perfect: if the packed instructions
+  // already write some memory, and the incoming instruction in NEMU
+  // will load that memory, we will encounter false negative. But such
+  // situation is infrequent.
+  skip_dut_nr_instr = 0;
 }
 
 // this is used to deal with instruction packing in QEMU.
