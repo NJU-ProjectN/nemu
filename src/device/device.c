@@ -1,7 +1,5 @@
 #include "common.h"
 
-void init_argsrom();
-
 #ifdef HAS_IOE
 
 #include <sys/time.h>
@@ -65,7 +63,6 @@ void sdl_clear_event_queue() {
 }
 
 void init_device() {
-  init_argsrom();
   init_serial();
   init_timer();
   init_vga();
@@ -85,7 +82,6 @@ void init_device() {
 #else
 
 void init_device() {
-  init_argsrom();
 }
 
 #endif	/* HAS_IOE */
