@@ -10,6 +10,8 @@ typedef struct {
     rtlreg_t _32;
   } gpr[32];
 
+  rtlreg_t pad[5];
+
   vaddr_t pc;
 
 } CPU_state;
