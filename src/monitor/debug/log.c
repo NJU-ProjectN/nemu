@@ -28,7 +28,9 @@ void asm_print(vaddr_t ori_pc, int instr_len, bool print_flag) {
   if (print_flag) {
     puts(tempbuf);
   }
+}
 
+void log_clearbuf(void) {
   log_bytebuf[0] = '\0';
   log_asmbuf[0] = '\0';
 }
