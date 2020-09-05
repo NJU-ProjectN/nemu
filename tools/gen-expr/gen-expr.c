@@ -6,12 +6,8 @@
 #include <string.h>
 
 // this should be enough
-static char buf[65536];
-static inline void gen_rand_expr() {
-  buf[0] = '\0';
-}
-
-static char code_buf[65536 + 128]; // a little larger than `buf`
+static char buf[65536] = {};
+static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -20,13 +16,8 @@ static char *code_format =
 "  return 0; "
 "}";
 
-void remove_u(char *p) {
-  char *q = p;
-  while ((q = strchr(q, 'u')) != NULL) {
-    // reuse code_buf
-    strcpy(code_buf, q + 1);
-    strcpy(q, code_buf);
-  }
+static inline void gen_rand_expr() {
+  buf[0] = '\0';
 }
 
 int main(int argc, char *argv[]) {
