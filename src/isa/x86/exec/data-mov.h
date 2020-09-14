@@ -5,31 +5,26 @@ static inline def_EHelper(mov) {
 
 static inline def_EHelper(push) {
   TODO();
-
   print_asm_template1(push);
 }
 
 static inline def_EHelper(pop) {
   TODO();
-
   print_asm_template1(pop);
 }
 
 static inline def_EHelper(pusha) {
   TODO();
-
   print_asm("pusha");
 }
 
 static inline def_EHelper(popa) {
   TODO();
-
   print_asm("popa");
 }
 
 static inline def_EHelper(leave) {
   TODO();
-
   print_asm("leave");
 }
 
@@ -38,20 +33,18 @@ static inline def_EHelper(cltd) {
     TODO();
   }
   else {
-  TODO();
+    TODO();
   }
-
   print_asm(s->isa.is_operand_size_16 ? "cwtl" : "cltd");
 }
 
 static inline def_EHelper(cwtl) {
   if (s->isa.is_operand_size_16) {
-  TODO();
+    TODO();
   }
   else {
-  TODO();
+    TODO();
   }
-
   print_asm(s->isa.is_operand_size_16 ? "cbtw" : "cwtl");
 }
 
@@ -73,4 +66,3 @@ static inline def_EHelper(lea) {
   operand_write(s, id_dest, ddest);
   print_asm_template2(lea);
 }
-

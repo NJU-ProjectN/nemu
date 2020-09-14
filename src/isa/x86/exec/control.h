@@ -25,24 +25,20 @@ static inline def_EHelper(jmp_rm) {
 static inline def_EHelper(call) {
   // the target address is calculated at the decode stage
   TODO();
-
   print_asm("call %x", s->jmp_pc);
 }
 
 static inline def_EHelper(ret) {
   TODO();
-
   print_asm("ret");
 }
 
 static inline def_EHelper(ret_imm) {
   TODO();
-
   print_asm("ret %s", id_dest->str);
 }
 
 static inline def_EHelper(call_rm) {
   TODO();
-
   print_asm("call *%s", id_dest->str);
 }
