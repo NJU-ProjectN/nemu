@@ -21,7 +21,7 @@ static inline def_EHelper(store) {
 }
 
 
-static inline void fecth_decode_exec(DecodeExecState *s) {
+static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
   assert(s->isa.instr.i.opcode1_0 == 0x3);
   switch (s->isa.instr.i.opcode6_2) {
@@ -42,7 +42,7 @@ vaddr_t isa_exec_once() {
   s.is_jmp = 0;
   s.seq_pc = cpu.pc;
 
-  fecth_decode_exec(&s);
+  fetch_decode_exec(&s);
   update_pc(&s);
 
   reset_zero();
