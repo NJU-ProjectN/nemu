@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#define TIMER_HZ 100
+#define TIMER_HZ 60
 #define MAX_HANDLER 8
 
 typedef void (*alarm_handler_t) ();
