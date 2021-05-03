@@ -68,7 +68,7 @@ void difftest_init(int port) {
     // father
 
     gdb_connect_qemu(port);
-    printf("Connect to QEMU with %s tcpsuccessfully\n", buf);
+    printf("Connect to QEMU with %s successfully\n", buf);
 
     atexit(gdb_exit);
 

@@ -8,18 +8,17 @@ static inline void set_width(DecodeExecState *s, int width) {
 
 static inline def_EHelper(load) {
   switch (s->isa.instr.i.funct3) {
-    EXW  (2, ld, 4)
+    EXW  (3, ld, 8)
     default: exec_inv(s);
   }
 }
 
 static inline def_EHelper(store) {
   switch (s->isa.instr.s.funct3) {
-    EXW  (2, st, 4)
+    EXW  (3, st, 8)
     default: exec_inv(s);
   }
 }
-
 
 static inline void fetch_decode_exec(DecodeExecState *s) {
   s->isa.instr.val = instr_fetch(&s->seq_pc, 4);
@@ -34,7 +33,7 @@ static inline void fetch_decode_exec(DecodeExecState *s) {
 }
 
 static inline void reset_zero() {
-  reg_l(0) = 0;
+  reg_d(0) = 0;
 }
 
 vaddr_t isa_exec_once() {

@@ -18,7 +18,7 @@ static uint32_t initcode[] = {
 
 // here:
   0x000c1637,  // 20:  lui	a2,0xc1
-  0x80060613,  // 24:  addi	a2,a2,-2048 # c0800
+  0x8006061b,  // 24:  addiw	a2,a2,-2048
   0x30061073,  // 28:  csrw	mstatus,a2
 
   0x00000697,  // 2c:  auipc	a3,0x0

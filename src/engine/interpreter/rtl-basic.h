@@ -31,6 +31,17 @@ def_rtl_compute_reg_imm(shl)
 def_rtl_compute_reg_imm(shr)
 def_rtl_compute_reg_imm(sar)
 
+#ifdef ISA64
+def_rtl_compute_reg_imm(addw)
+def_rtl_compute_reg_imm(subw)
+def_rtl_compute_reg_imm(shlw)
+def_rtl_compute_reg_imm(shrw)
+def_rtl_compute_reg_imm(sarw)
+#define rtl_addiw rtl_addwi
+#define rtl_shliw rtl_shlwi
+#define rtl_shriw rtl_shrwi
+#define rtl_sariw rtl_sarwi
+#endif
 
 static inline def_rtl(setrelop, uint32_t relop, rtlreg_t *dest,
     const rtlreg_t *src1, const rtlreg_t *src2) {
@@ -53,6 +64,13 @@ def_rtl_compute_reg(div_r)
 def_rtl_compute_reg(idiv_q)
 def_rtl_compute_reg(idiv_r)
 
+#ifdef ISA64
+def_rtl_compute_reg(mulw)
+def_rtl_compute_reg(divw)
+def_rtl_compute_reg(divuw)
+def_rtl_compute_reg(remw)
+def_rtl_compute_reg(remuw)
+#endif
 
 static inline def_rtl(div64_q, rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {

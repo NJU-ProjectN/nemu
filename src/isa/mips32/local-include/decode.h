@@ -17,7 +17,7 @@ static inline def_DopHelper(r) {
   op->reg = val;
   op->preg = &reg_l(val);
 
-  print_Dop(op->str, OP_STR_SIZE, "%s", reg_name(op->reg, 4));
+  print_Dop(op->str, OP_STR_SIZE, "%s", reg_name(op->reg));
 }
 
 static inline def_DHelper(IU) {

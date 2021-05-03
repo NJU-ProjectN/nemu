@@ -130,8 +130,8 @@ static inline def_EHelper(imul2) {
 
 // imul with three operands
 static inline def_EHelper(imul3) {
-  rtl_sext(s, dsrc1, dsrc1, id_src1->width);
-  rtl_sext(s, dsrc2, dsrc2, id_src1->width);
+  rtl_sext(s, dsrc1, dsrc1, id_dest->width);
+  rtl_sext(s, dsrc2, dsrc2, id_dest->width);
 
   rtl_imul_lo(s, ddest, dsrc2, dsrc1);
   operand_write(s, id_dest, ddest);
