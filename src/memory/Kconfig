@@ -1,0 +1,26 @@
+menu "Memory Configuration"
+
+config MBASE
+  hex "Memory base address"
+  default 0x0        if ISA_x86
+  default 0x80000000
+
+config MSIZE
+  hex "Memory size"
+  default 0x8000000
+
+config PC_RESET_OFFSET
+  hex "Offset of reset vector from the base of memory"
+  default 0x100000 if ISA_x86
+  default 0
+
+if !TARGET_AM
+config MEM_RANDOM
+  depends on MODE_SYSTEM && !DIFFTEST
+  bool "Initialize the memory with random values"
+  default y
+  help
+    This may help to find undefined behaviors.
+endif
+
+endmenu #MEMORY

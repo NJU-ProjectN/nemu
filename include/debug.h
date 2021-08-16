@@ -1,21 +1,19 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
+#include <common.h>
 #include <stdio.h>
-#include <assert.h>
-#include <monitor/log.h>
+#include <utils.h>
 
 #define Log(format, ...) \
-    _Log("\33[1;34m[%s,%d,%s] " format "\33[0m\n", \
+    _Log(ASNI_FMT("[%s:%d %s] " format, ASNI_FG_BLUE) "\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
-#define Assert(cond, ...) \
+#define Assert(cond, format, ...) \
   do { \
     if (!(cond)) { \
-      fflush(stdout); \
-      fprintf(stderr, "\33[1;31m"); \
-      fprintf(stderr, __VA_ARGS__); \
-      fprintf(stderr, "\33[0m\n"); \
+      MUXDEF(CONFIG_TARGET_AM, printf(ASNI_FMT(format, ASNI_FG_RED) "\n", ## __VA_ARGS__), \
+        (fflush(stdout), fprintf(stderr, ASNI_FMT(format, ASNI_FG_RED) "\n", ##  __VA_ARGS__))); \
       extern void isa_reg_display(); \
       extern void monitor_statistic(); \
       isa_reg_display(); \
@@ -24,7 +22,7 @@
     } \
   } while (0)
 
-#define panic(...) Assert(0, __VA_ARGS__)
+#define panic(format, ...) Assert(0, format, ## __VA_ARGS__)
 
 #define TODO() panic("please implement me")
 

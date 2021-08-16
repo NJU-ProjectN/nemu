@@ -1,6 +1,7 @@
 // from NEMU
 #include <memory/paddr.h>
-#include <isa/x86.h>
+#include <isa-def.h>
+#include <difftest-def.h>
 
 #include <fcntl.h>
 #include <errno.h>
@@ -56,7 +57,7 @@ static void kvm_set_step_mode(bool watch, uint32_t watch_addr) {
   }
 }
 
-static inline void kvm_getregs(struct kvm_regs *r) {
+static void kvm_getregs(struct kvm_regs *r) {
   if (ioctl(vcpu.fd, KVM_GET_REGS, r) < 0) {
     perror("KVM_GET_REGS");
     assert(0);
@@ -210,7 +211,7 @@ static void setup_protected_mode(struct kvm_sregs *sregs) {
   sregs->ds = sregs->es = sregs->fs = sregs->gs = sregs->ss = seg;
 }
 
-static inline uint64_t va2pa(uint64_t va) {
+static uint64_t va2pa(uint64_t va) {
   if (vcpu.kvm_run->s.regs.sregs.cr0 & CR0_PG) {
     struct kvm_translation t = { .linear_address = va };
     int ret = ioctl(vcpu.fd, KVM_TRANSLATE, &t);
@@ -220,7 +221,7 @@ static inline uint64_t va2pa(uint64_t va) {
   return va;
 }
 
-static inline int patching() {
+static int patching() {
   // patching for special instructions
   uint32_t pc = va2pa(vcpu.kvm_run->s.regs.regs.rip);
   if (pc == 0xffffffff) return 0;
@@ -254,12 +255,12 @@ static inline int patching() {
   return 0;
 }
 
-static inline void fix_push_sreg() {
+static void fix_push_sreg() {
   uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
   *(uint32_t *)(vm.mem + esp) &= 0x0000ffff;
 }
 
-static inline void patching_after(uint64_t last_pc) {
+static void patching_after(uint64_t last_pc) {
   uint32_t pc = va2pa(last_pc);
   if (pc == 0xffffffff) return;
   uint8_t opcode = vm.mem[pc];
@@ -336,39 +337,37 @@ static void run_protected_mode() {
   kvm_exec(10);
 }
 
-void difftest_memcpy_from_dut(paddr_t dest, void *src, size_t n) {
-  memcpy(vm.mem + dest, src, n);
+void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+  if (direction == DIFFTEST_TO_REF) memcpy(vm.mem + addr, buf, n);
+  else memcpy(buf, vm.mem + addr, n);
 }
 
-void difftest_getregs(void *r) {
+void difftest_regcpy(void *r, bool direction) {
   struct kvm_regs *ref = &(vcpu.kvm_run->s.regs.regs);
   x86_CPU_state *x86 = r;
-  x86->eax = ref->rax;
-  x86->ebx = ref->rbx;
-  x86->ecx = ref->rcx;
-  x86->edx = ref->rdx;
-  x86->esp = ref->rsp;
-  x86->ebp = ref->rbp;
-  x86->esi = ref->rsi;
-  x86->edi = ref->rdi;
-  x86->pc  = ref->rip;
-}
-
-void difftest_setregs(const void *r) {
-  struct kvm_regs *ref = &(vcpu.kvm_run->s.regs.regs);
-  const x86_CPU_state *x86 = r;
-  ref->rax = x86->eax;
-  ref->rbx = x86->ebx;
-  ref->rcx = x86->ecx;
-  ref->rdx = x86->edx;
-  ref->rsp = x86->esp;
-  ref->rbp = x86->ebp;
-  ref->rsi = x86->esi;
-  ref->rdi = x86->edi;
-  ref->rip = x86->pc;
-  ref->rflags |= RFLAGS_TF;
-
-  vcpu.kvm_run->kvm_dirty_regs = KVM_SYNC_X86_REGS;
+  if (direction == DIFFTEST_TO_REF) {
+    ref->rax = x86->eax;
+    ref->rbx = x86->ebx;
+    ref->rcx = x86->ecx;
+    ref->rdx = x86->edx;
+    ref->rsp = x86->esp;
+    ref->rbp = x86->ebp;
+    ref->rsi = x86->esi;
+    ref->rdi = x86->edi;
+    ref->rip = x86->pc;
+    ref->rflags |= RFLAGS_TF;
+    vcpu.kvm_run->kvm_dirty_regs = KVM_SYNC_X86_REGS;
+  } else {
+    x86->eax = ref->rax;
+    x86->ebx = ref->rbx;
+    x86->ecx = ref->rcx;
+    x86->edx = ref->rdx;
+    x86->esp = ref->rsp;
+    x86->ebp = ref->rbp;
+    x86->esi = ref->rsi;
+    x86->edi = ref->rdi;
+    x86->pc  = ref->rip;
+  }
 }
 
 void difftest_exec(uint64_t n) {
@@ -395,7 +394,7 @@ void difftest_raise_intr(word_t NO) {
 }
 
 void difftest_init(int port) {
-  vm_init(PMEM_SIZE);
+  vm_init(CONFIG_MSIZE);
   vcpu_init();
   run_protected_mode();
 }

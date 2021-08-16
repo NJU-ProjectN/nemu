@@ -16,7 +16,7 @@ static char *code_format =
 "  return 0; "
 "}";
 
-static inline void gen_rand_expr() {
+static void gen_rand_expr() {
   buf[0] = '\0';
 }
 

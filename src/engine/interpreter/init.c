@@ -1,10 +1,12 @@
-void ui_mainloop();
-void init_device();
+#include <cpu/cpu.h>
+
+void sdb_mainloop();
 
 void engine_start() {
-  /* Initialize devices. */
-  init_device();
-
+#ifdef CONFIG_TARGET_AM
+  cpu_exec(-1);
+#else
   /* Receive commands from user. */
-  ui_mainloop();
+  sdb_mainloop();
+#endif
 }

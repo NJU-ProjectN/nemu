@@ -18,7 +18,6 @@
  */
 
 #include <stdint.h>
-#include _ISA_H_
 
 struct gdb_conn;
 

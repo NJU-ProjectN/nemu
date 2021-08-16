@@ -1,7 +1,7 @@
 # NEMU
 
 NEMU(NJU Emulator) is a simple but complete full-system emulator designed for teaching purpose.
-Currently it supports x86, mips32, and riscv32.
+Currently it supports x86, mips32, riscv32 and riscv64.
 To build programs run above NEMU, refer to the [AM project](https://github.com/NJU-ProjectN/abstract-machine).
 
 The main features of NEMU include
@@ -20,6 +20,8 @@ The main features of NEMU include
     * CP1 floating point instructions are not supported
   * riscv32
     * only RV32IM
+  * riscv64
+    * only RV64IM
 * memory
 * paging
   * TLB is optional (but necessary for mips32)

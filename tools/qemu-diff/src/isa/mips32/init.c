@@ -1,2 +1,0 @@
-void init_isa() {
-}

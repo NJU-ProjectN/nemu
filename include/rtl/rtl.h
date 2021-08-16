@@ -3,24 +3,19 @@
 
 #include <cpu/decode.h>
 
-#define id_src1 (&s->src1)
-#define id_src2 (&s->src2)
-#define id_dest (&s->dest)
+extern const rtlreg_t rzero;
+extern rtlreg_t tmp_reg[4];
 
 #define dsrc1 (id_src1->preg)
 #define dsrc2 (id_src2->preg)
 #define ddest (id_dest->preg)
-#define s0    (&s->tmp_reg[0])
-#define s1    (&s->tmp_reg[1])
-#define s2    (&s->tmp_reg[2])
-#define t0    (&s->tmp_reg[3])
-
-extern const rtlreg_t rzero;
+#define s0    (&tmp_reg[0])
+#define s1    (&tmp_reg[1])
+#define s2    (&tmp_reg[2])
+#define t0    (&tmp_reg[3])
 #define rz (&rzero)
 
-#define def_rtl(name, ...) void concat(rtl_, name)(DecodeExecState *s, __VA_ARGS__)
-
-void rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret);
+#define def_rtl(name, ...) void concat(rtl_, name)(Decode *s, __VA_ARGS__)
 
 // relation operation
 enum {
@@ -45,7 +40,20 @@ enum {
   RELOP_GEU   = 8 | 0 | 0 | 1,
 };
 
+enum {
+  HOSTCALL_EXIT,  // handling nemu_trap
+  HOSTCALL_INV,   // invalid opcode
+  HOSTCALL_PIO,   // port I/O
+  HOSTCALL_CSR,   // system registers / control status registers
+  HOSTCALL_TRAP,  // trap by interrupts/exceptions
+  HOSTCALL_PRIV,  // privilige instructions
+};
+
+def_rtl(hostcall, uint32_t id, rtlreg_t *dest, const rtlreg_t *src1,
+    const rtlreg_t *src2, word_t imm);
+
 #include <rtl-basic.h>
 #include <rtl/pseudo.h>
+
 
 #endif

@@ -1,8 +1,3 @@
-APP=gen-expr
-
-$(APP): gen-expr.c
-	gcc -O2 -Wall -Werror -o $@ $<
-
-.PHONY: clean
-clean:
-	-rm $(APP) 2> /dev/null
+NAME = gen-expr
+SRCS = gen-expr.c
+include $(NEMU_HOME)/scripts/build.mk

@@ -1,47 +1,34 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-//#define DEBUG
-//#define DIFF_TEST
-
-#ifdef __ISA_riscv64__
-# define ISA64
-#endif
-
-#if _SHARE
-// do not enable these features while building a reference design
-#undef DIFF_TEST
-#undef DEBUG
-#endif
-
-/* You will define this macro in PA2 */
-//#define HAS_IOE
-
 #include <stdint.h>
-#include <assert.h>
+#include <stdbool.h>
 #include <string.h>
 
-typedef uint8_t bool;
+#include <generated/autoconf.h>
+#include <macro.h>
 
-#ifdef ISA64
-typedef uint64_t word_t;
-typedef int64_t sword_t;
-#define FMT_WORD "0x%016lx"
+#ifdef CONFIG_TARGET_AM
+#include <klib.h>
 #else
-typedef uint32_t word_t;
-typedef int32_t sword_t;
-#define FMT_WORD "0x%08x"
+#include <assert.h>
+#include <stdlib.h>
 #endif
+
+#if CONFIG_MBASE + CONFIG_MSIZE > 0x100000000ul
+#define PMEM64 1
+#endif
+
+typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
+typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t;
+#define FMT_WORD MUXDEF(CONFIG_ISA64, "0x%016lx", "0x%08x")
 
 typedef word_t rtlreg_t;
 typedef word_t vaddr_t;
-typedef uint32_t paddr_t;
+typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;
+#define FMT_PADDR MUXDEF(PMEM64, "0x%016lx", "0x%08x")
 typedef uint16_t ioaddr_t;
 
-#define false 0
-#define true 1
-
 #include <debug.h>
-#include <macro.h>
 
 #endif

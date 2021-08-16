@@ -31,7 +31,7 @@ def_rtl_compute_reg_imm(shl)
 def_rtl_compute_reg_imm(shr)
 def_rtl_compute_reg_imm(sar)
 
-#ifdef ISA64
+#ifdef CONFIG_ISA64
 def_rtl_compute_reg_imm(addw)
 def_rtl_compute_reg_imm(subw)
 def_rtl_compute_reg_imm(shlw)
@@ -55,16 +55,15 @@ static inline def_rtl(setrelopi, uint32_t relop, rtlreg_t *dest,
 
 // mul/div
 
-def_rtl_compute_reg(mul_lo)
-def_rtl_compute_reg(mul_hi)
-def_rtl_compute_reg(imul_lo)
-def_rtl_compute_reg(imul_hi)
-def_rtl_compute_reg(div_q)
-def_rtl_compute_reg(div_r)
-def_rtl_compute_reg(idiv_q)
-def_rtl_compute_reg(idiv_r)
+def_rtl_compute_reg(mulu_lo)
+def_rtl_compute_reg(mulu_hi)
+def_rtl_compute_reg(muls_hi)
+def_rtl_compute_reg(divu_q)
+def_rtl_compute_reg(divu_r)
+def_rtl_compute_reg(divs_q)
+def_rtl_compute_reg(divs_r)
 
-#ifdef ISA64
+#ifdef CONFIG_ISA64
 def_rtl_compute_reg(mulw)
 def_rtl_compute_reg(divw)
 def_rtl_compute_reg(divuw)
@@ -72,28 +71,28 @@ def_rtl_compute_reg(remw)
 def_rtl_compute_reg(remuw)
 #endif
 
-static inline def_rtl(div64_q, rtlreg_t* dest,
+static inline def_rtl(div64u_q, rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
   uint32_t divisor = (*src2);
   *dest = dividend / divisor;
 }
 
-static inline def_rtl(div64_r, rtlreg_t* dest,
+static inline def_rtl(div64u_r, rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
   uint32_t divisor = (*src2);
   *dest = dividend % divisor;
 }
 
-static inline def_rtl(idiv64_q, rtlreg_t* dest,
+static inline def_rtl(div64s_q, rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
   int32_t divisor = (*src2);
   *dest = dividend / divisor;
 }
 
-static inline def_rtl(idiv64_r, rtlreg_t* dest,
+static inline def_rtl(div64s_r, rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
   int32_t divisor = (*src2);
@@ -106,8 +105,8 @@ static inline def_rtl(lm, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, i
   *dest = vaddr_read(*addr + offset, len);
 }
 
-static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* src1, int len) {
-  vaddr_write(*addr + offset, *src1, len);
+static inline def_rtl(sm, const rtlreg_t *src1, const rtlreg_t* addr, word_t offset, int len) {
+  vaddr_write(*addr + offset, len, *src1);
 }
 
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
@@ -116,7 +115,8 @@ static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, 
     case 4: *dest = (sword_t)(int32_t)val; return;
     case 1: *dest = (sword_t)( int8_t)val; return;
     case 2: *dest = (sword_t)(int16_t)val; return;
-    default: assert(0);
+    IFDEF(CONFIG_ISA64, case 8: *dest = (sword_t)(int64_t)val; return);
+    IFDEF(CONFIG_RT_CHECK, default: assert(0));
   }
 }
 
@@ -125,7 +125,8 @@ static inline def_rtl(host_lm, rtlreg_t* dest, const void *addr, int len) {
     case 4: *dest = *(uint32_t *)addr; return;
     case 1: *dest = *( uint8_t *)addr; return;
     case 2: *dest = *(uint16_t *)addr; return;
-    default: assert(0);
+    IFDEF(CONFIG_ISA64, case 8: *dest = *(uint64_t *)addr; return);
+    IFDEF(CONFIG_RT_CHECK, default: assert(0));
   }
 }
 
@@ -134,25 +135,24 @@ static inline def_rtl(host_sm, void *addr, const rtlreg_t *src1, int len) {
     case 4: *(uint32_t *)addr = *src1; return;
     case 1: *( uint8_t *)addr = *src1; return;
     case 2: *(uint16_t *)addr = *src1; return;
-    default: assert(0);
+    IFDEF(CONFIG_ISA64, case 8: *(uint64_t *)addr = *src1; return);
+    IFDEF(CONFIG_RT_CHECK, default: assert(0));
   }
 }
 
 // control
 
 static inline def_rtl(j, vaddr_t target) {
-  s->jmp_pc = target;
-  s->is_jmp = true;
+  cpu.pc = target;
 }
 
 static inline def_rtl(jr, rtlreg_t *target) {
-  s->jmp_pc = *target;
-  s->is_jmp = true;
+  cpu.pc = *target;
 }
 
 static inline def_rtl(jrelop, uint32_t relop,
     const rtlreg_t *src1, const rtlreg_t *src2, vaddr_t target) {
   bool is_jmp = interpret_relop(relop, *src1, *src2);
-  if (is_jmp) rtl_j(s, target);
+  rtl_j(s, (is_jmp ? target : s->snpc));
 }
 #endif

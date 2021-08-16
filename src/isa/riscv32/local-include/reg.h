@@ -3,17 +3,16 @@
 
 #include <common.h>
 
-static inline int check_reg_index(int index) {
-  assert(index >= 0 && index < 32);
-  return index;
+static inline int check_reg_idx(int idx) {
+  IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < 32));
+  return idx;
 }
 
-#define reg_l(index) (cpu.gpr[check_reg_index(index)]._32)
+#define gpr(idx) (cpu.gpr[check_reg_idx(idx)]._32)
 
-static inline const char* reg_name(int index) {
+static inline const char* reg_name(int idx, int width) {
   extern const char* regs[];
-  assert(index >= 0 && index < 32);
-  return regs[index];
+  return regs[check_reg_idx(idx)];
 }
 
 #endif

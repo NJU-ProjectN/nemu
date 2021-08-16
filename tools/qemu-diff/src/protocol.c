@@ -20,7 +20,6 @@
 #include "common.h"
 #include <ctype.h>
 #include <err.h>
-#include <stdbool.h>
 
 #include <arpa/inet.h>
 
@@ -65,7 +64,7 @@ uint64_t gdb_decode_hex_str(uint8_t *bytes) {
 
 
 static struct gdb_conn* gdb_begin(int fd) {
-  struct gdb_conn *conn = calloc(1, sizeof(struct gdb_conn *));
+  struct gdb_conn *conn = calloc(1, sizeof(struct gdb_conn));
   if (conn == NULL)
     err(1, "calloc");
 

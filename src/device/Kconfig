@@ -1,0 +1,154 @@
+menuconfig DEVICE
+  depends on !TARGET_SHARE
+  bool "Devices"
+  default n
+  help
+    Provide device support for NEMU.
+
+if DEVICE
+
+config HAS_PORT_IO
+  bool
+  default y if ISA_x86
+  default n
+
+menuconfig HAS_SERIAL
+  bool "Enable serial"
+  default y
+
+if HAS_SERIAL
+config SERIAL_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the serial controller"
+  default 0x3f8
+
+config SERIAL_MMIO
+  hex "MMIO address of the serial controller"
+  default 0xa00003f8
+
+config SERIAL_INPUT_FIFO
+  bool "Enable input FIFO with /tmp/nemu.serial"
+  default n
+endif # HAS_SERIAL
+
+menuconfig HAS_TIMER
+  bool "Enable timer"
+  default y
+
+if HAS_TIMER
+config RTC_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the timer"
+  default 0x48
+
+config RTC_MMIO
+  hex "MMIO address of the timer"
+  default 0xa0000048
+endif # HAS_TIMER
+
+menuconfig HAS_KEYBOARD
+  bool "Enable keyboard"
+  default y
+
+if HAS_KEYBOARD
+config I8042_DATA_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the keyboard controller"
+  default 0x60
+
+config I8042_DATA_MMIO
+  hex "MMIO address of the keyboard controller"
+  default 0xa0000060
+endif # HAS_KEYBOARD
+
+menuconfig HAS_VGA
+  bool "Enable VGA"
+  default y
+
+if HAS_VGA
+config FB_ADDR
+  hex "Physical address of the VGA frame buffer"
+  default 0xa1000000
+
+config VGA_CTL_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the VGA controller"
+  default 0x100
+
+config VGA_CTL_MMIO
+  hex "MMIO address of the VGA controller"
+  default 0xa0000100
+
+config VGA_SHOW_SCREEN
+  bool "Enable SDL SCREEN"
+  default y
+
+choice
+  prompt "Screen Size"
+  default VGA_SIZE_400x300
+config VGA_SIZE_400x300
+  bool "400 x 300"
+config VGA_SIZE_800x600
+  bool "800 x 600"
+endchoice
+endif # HAS_VGA
+
+if !TARGET_AM
+menuconfig HAS_AUDIO
+  bool "Enable audio"
+  default y
+
+if HAS_AUDIO
+config SB_ADDR
+  hex "Physical address of the audio stream buffer"
+  default 0xa1200000
+
+config SB_SIZE
+  hex "Size of the audio stream buffer"
+  default 0x10000
+
+config AUDIO_CTL_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the audio controller"
+  default 0x200
+
+config AUDIO_CTL_MMIO
+  hex "MMIO address of the audio controller"
+  default 0xa0000200
+endif # HAS_AUDIO
+
+menuconfig HAS_DISK
+  bool "Enable disk"
+  default y
+
+if HAS_DISK
+config DISK_CTL_PORT
+  depends on HAS_PORT_IO
+  hex "Port address of the disk controller"
+  default 0x300
+
+config DISK_CTL_MMIO
+  hex "MMIO address of the disk controller"
+  default 0xa0000300
+
+config DISK_IMG_PATH
+  string "The path of disk image"
+  default ""
+endif # HAS_DISK
+
+menuconfig HAS_SDCARD
+  bool "Enable sdcard"
+  default n
+
+if HAS_SDCARD
+config SDCARD_CTL_MMIO
+  hex "MMIO address of the sdcard controller"
+  default 0xa3000000
+
+config SDCARD_IMG_PATH
+  string "The path of sdcard image"
+  default ""
+endif # HAS_SDCARD
+endif
+
+endif # DEVICE
