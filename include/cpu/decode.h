@@ -21,7 +21,8 @@ typedef struct {
 
 typedef struct Decode {
   vaddr_t pc;
-  vaddr_t snpc; // sequential next pc
+  vaddr_t snpc; // static next pc
+  vaddr_t dnpc; // dynamic next pc
   void (*EHelper)(struct Decode *);
   Operand dest, src1, src2;
   ISADecodeInfo isa;
