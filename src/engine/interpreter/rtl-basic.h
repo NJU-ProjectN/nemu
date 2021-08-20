@@ -27,20 +27,20 @@ def_rtl_compute_reg_imm(sub)
 def_rtl_compute_reg_imm(and)
 def_rtl_compute_reg_imm(or)
 def_rtl_compute_reg_imm(xor)
-def_rtl_compute_reg_imm(shl)
-def_rtl_compute_reg_imm(shr)
-def_rtl_compute_reg_imm(sar)
+def_rtl_compute_reg_imm(sll)
+def_rtl_compute_reg_imm(srl)
+def_rtl_compute_reg_imm(sra)
 
 #ifdef CONFIG_ISA64
 def_rtl_compute_reg_imm(addw)
 def_rtl_compute_reg_imm(subw)
-def_rtl_compute_reg_imm(shlw)
-def_rtl_compute_reg_imm(shrw)
-def_rtl_compute_reg_imm(sarw)
+def_rtl_compute_reg_imm(sllw)
+def_rtl_compute_reg_imm(srlw)
+def_rtl_compute_reg_imm(sraw)
 #define rtl_addiw rtl_addwi
-#define rtl_shliw rtl_shlwi
-#define rtl_shriw rtl_shrwi
-#define rtl_sariw rtl_sarwi
+#define rtl_slliw rtl_sllwi
+#define rtl_srliw rtl_srlwi
+#define rtl_sraiw rtl_srawi
 #endif
 
 static inline def_rtl(setrelop, uint32_t relop, rtlreg_t *dest,
