@@ -18,6 +18,8 @@ static bool g_print_step = false;
 const rtlreg_t rzero = 0;
 rtlreg_t tmp_reg[4];
 
+void device_update();
+
 #ifdef CONFIG_DEBUG
 static void debug_hook(vaddr_t pc, const char *asmbuf) {
   log_write("%s\n", asmbuf);
@@ -89,6 +91,7 @@ void cpu_exec(uint64_t n) {
     IFDEF(CONFIG_DEBUG, debug_hook(s.pc, s.logbuf));
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DIFFTEST, difftest_step(s.pc, cpu.pc));
+    IFDEF(CONFIG_DEVICE, device_update());
   }
 
   uint64_t timer_end = get_time();
