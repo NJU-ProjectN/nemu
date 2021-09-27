@@ -7,13 +7,13 @@ void init_mem();
 void init_difftest(char *ref_so_file, long img_size, int port);
 void init_device();
 void init_sdb();
+void init_disasm(const char *triple);
 
 static void welcome() {
-  Log("Debug: %s", MUXDEF(CONFIG_DEBUG, ASNI_FMT("ON", ASNI_FG_GREEN), ASNI_FMT("OFF", ASNI_FG_RED)));
-  IFDEF(CONFIG_DEBUG, Log("If debug mode is on, a log file will be generated "
-      "to record every instruction NEMU executes. This may lead to a large log file. "
-      "If it is not necessary, you can turn it off in include/common.h.")
-  );
+  Log("Trace: %s", MUXDEF(CONFIG_TRACE, ASNI_FMT("ON", ASNI_FG_GREEN), ASNI_FMT("OFF", ASNI_FG_RED)));
+  IFDEF(CONFIG_TRACE, Log("If trace is enabled, a log file will be generated "
+        "to record the trace. This may lead to a large log file. "
+        "If it is not necessary, you can disable it in menuconfig"));
   Log("Build time: %s, %s", __TIME__, __DATE__);
   printf("Welcome to %s-NEMU!\n", ASNI_FMT(str(__GUEST_ISA__), ASNI_FG_YELLOW ASNI_BG_RED));
   printf("For help, type \"help\"\n");
@@ -98,6 +98,9 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize memory. */
   init_mem();
 
+  /* Initialize devices. */
+  IFDEF(CONFIG_DEVICE, init_device());
+
   /* Perform ISA dependent initialization. */
   init_isa();
 
@@ -107,11 +110,15 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
 
-  /* Initialize devices. */
-  IFDEF(CONFIG_DEVICE, init_device());
-
   /* Initialize the simple debugger. */
   init_sdb();
+
+  IFDEF(CONFIG_ITRACE, init_disasm(
+    MUXDEF(CONFIG_ISA_x86,     "i686",
+    MUXDEF(CONFIG_ISA_mips32,  "mipsel",
+    MUXDEF(CONFIG_ISA_riscv32, "riscv32",
+    MUXDEF(CONFIG_ISA_riscv64, "riscv64", "bad")))) "-pc-linux-gnu"
+  ));
 
   /* Display welcome message. */
   welcome();

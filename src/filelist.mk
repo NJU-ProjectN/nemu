@@ -3,11 +3,8 @@ DIRS-y += src/cpu src/monitor src/utils
 DIRS-$(CONFIG_MODE_SYSTEM) += src/memory
 DIRS-BLACKLIST-$(CONFIG_TARGET_AM) += src/monitor/sdb
 
-ifdef CONFIG_TARGET_SHARE
-SHARE = 1
-else
-LIBS += $(if $(CONFIG_TARGET_AM),,-lreadline -ldl -pie)
-endif
+SHARE = $(if $(CONFIG_TARGET_SHARE),1,0)
+LIBS += $(if $(CONFIG_TARGET_NATIVE_ELF),-lreadline -ldl -pie,)
 
 ifdef mainargs
 ASFLAGS += -DBIN_PATH=\"$(mainargs)\"

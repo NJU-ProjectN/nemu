@@ -14,14 +14,12 @@ static uint32_t get_instr(Decode *s) {
 
 static def_DopHelper(i) {
   op->imm = val;
-  print_Dop(op->str, OP_STR_SIZE, (flag ? "0x%x" : "%d"), op->imm);
 }
 
 static def_DopHelper(r) {
   bool is_write = flag;
   static word_t zero_null = 0;
   op->preg = (is_write && val == 0) ? &zero_null : &gpr(val);
-  print_Dop(op->str, OP_STR_SIZE, "%s", reg_name(val, 4));
 }
 
 static def_DHelper(I) {

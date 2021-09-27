@@ -57,7 +57,7 @@ agt-get install sbt
 
 * 添加/root/目录的写和执行权限, 使得host上的普通用户可以访问
 ```
-chmod +w,+x /root
+chmod a+w,a+x /root
 ```
 
 * 在/root/目录下提前写入所需的测试文件, 如hello.c等.
@@ -155,4 +155,4 @@ sudo losetup -d /dev/loop0  # 删除loop设备
 * 修改`nemu/src/device/sdcard.c`中`init_sdcard()`中打开的镜像文件路径, 即可使用制作的镜像.
 在i9-9900k上测试, 约90s后看到debian的登录提示符.
 
-* 当以可写方式启动镜像是, NEMU遇到错误或通过Ctrl+C直接退出NEMU时, 可能会损坏镜像的崩溃一致性, 此时可以通过fsck命令修复分区.
+* 当以可写方式启动镜像时, NEMU遇到错误或通过Ctrl+C直接退出NEMU时, 可能会损坏镜像的崩溃一致性, 此时可以通过fsck命令修复分区.

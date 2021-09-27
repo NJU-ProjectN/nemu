@@ -1,4 +1,4 @@
-NAME  = kvm
+NAME  = x86-kvm
 SRCS  = $(shell find src/ -name "*.c")
 
 SHARE = 1

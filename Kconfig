@@ -118,25 +118,35 @@ config CC_ASAN
 endmenu
 
 menu "Testing and Debugging"
-config DEBUG
-  depends on !TARGET_SHARE && !TARGET_AM
-  bool "Enable debug features inside NEMU"
-  default y
-  help
-    Enable debug features, which include instruction tracing and watchpoint.
 
-config LOG_START
-  depends on DEBUG
-  int "When instruction tracing is enabled (unit: number of instructions)"
+
+config TRACE
+  bool "Enable tracer"
+  default y
+
+config TRACE_START
+  depends on TRACE
+  int "When tracing is enabled (unit: number of instructions)"
   default 0
 
-config LOG_END
-  depends on DEBUG
-  int "When instruction tracing is disabled (unit: number of instructions)"
+config TRACE_END
+  depends on TRACE
+  int "When tracing is disabled (unit: number of instructions)"
   default 10000
 
+config ITRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable instruction tracer"
+  default y
+
+config ITRACE_COND
+  depends on ITRACE
+  string "Only trace instructions when the condition is true"
+  default "true"
+
+
 config DIFFTEST
-  depends on !TARGET_SHARE && !TARGET_AM
+  depends on TARGET_NATIVE_ELF
   bool "Enable differential testing"
   default n
   help

@@ -14,10 +14,8 @@
     if (!(cond)) { \
       MUXDEF(CONFIG_TARGET_AM, printf(ASNI_FMT(format, ASNI_FG_RED) "\n", ## __VA_ARGS__), \
         (fflush(stdout), fprintf(stderr, ASNI_FMT(format, ASNI_FG_RED) "\n", ##  __VA_ARGS__))); \
-      extern void isa_reg_display(); \
-      extern void monitor_statistic(); \
-      isa_reg_display(); \
-      monitor_statistic(); \
+      extern void assert_fail_msg(); \
+      assert_fail_msg(); \
       assert(cond); \
     } \
   } while (0)
