@@ -37,8 +37,8 @@ struct vcpu {
 
 enum {
   STATE_IDLE,      // if encounter an int instruction, then set watchpoint
-  STATE_INT_INSTR, // if hit the watchpoint, then delete the watchpoint
-  STATE_IRET_INSTR,// if hit the watchpoint, then delete the watchpoint
+  STATE_INT_INST, // if hit the watchpoint, then delete the watchpoint
+  STATE_IRET_INST,// if hit the watchpoint, then delete the watchpoint
 };
 
 static struct vm vm;
@@ -219,7 +219,7 @@ static int patching() {
   uint32_t pc = va2pa(vcpu.kvm_run->s.regs.regs.rip);
   if (pc == 0xffffffff) return 0;
   if (vm.mem[pc] == 0x9c) {  // pushf
-    if (vcpu.int_wp_state == STATE_INT_INSTR) return 0;
+    if (vcpu.int_wp_state == STATE_INT_INST) return 0;
     vcpu.kvm_run->s.regs.regs.rsp -= 4;
     uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
     *(uint32_t *)(vm.mem + esp) = vcpu.kvm_run->s.regs.regs.rflags & ~RFLAGS_FIX_MASK;
@@ -229,7 +229,7 @@ static int patching() {
     return 1;
   }
   else if (vm.mem[pc] == 0x9d) {  // popf
-    if (vcpu.int_wp_state == STATE_INT_INSTR) return 0;
+    if (vcpu.int_wp_state == STATE_INT_INST) return 0;
     uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
     vcpu.kvm_run->s.regs.regs.rflags = *(uint32_t *)(vm.mem + esp) | RFLAGS_TF | 2;
     vcpu.kvm_run->s.regs.regs.rsp += 4;
@@ -242,7 +242,7 @@ static int patching() {
     uint32_t eip = *(uint32_t *)(vm.mem + ret_addr);
     vcpu.entry = eip;
     kvm_set_step_mode(true, eip);
-    vcpu.int_wp_state = STATE_IRET_INSTR;
+    vcpu.int_wp_state = STATE_IRET_INST;
     return 0;
   }
   return 0;
@@ -291,7 +291,7 @@ static void kvm_exec(uint64_t n) {
       assert(0);
     } else {
       patching_after(pc);
-      if (vcpu.int_wp_state == STATE_INT_INSTR) {
+      if (vcpu.int_wp_state == STATE_INT_INST) {
         uint32_t eflag_offset = 8 + (vcpu.has_error_code ? 4 : 0);
         uint32_t eflag_addr = va2pa(vcpu.kvm_run->s.regs.regs.rsp + eflag_offset);
         *(uint32_t *)(vm.mem + eflag_addr) &= ~RFLAGS_FIX_MASK;
@@ -302,7 +302,7 @@ static void kvm_exec(uint64_t n) {
         vcpu.int_wp_state = STATE_IDLE;
       //Log("exception = %d, pc = %llx, dr6 = %llx, dr7 = %llx", vcpu.kvm_run->debug.arch.exception,
       //    vcpu.kvm_run->debug.arch.pc, vcpu.kvm_run->debug.arch.dr6, vcpu.kvm_run->debug.arch.dr7);
-      } else if (vcpu.int_wp_state == STATE_IRET_INSTR) {
+      } else if (vcpu.int_wp_state == STATE_IRET_INST) {
         Assert(vcpu.entry == vcpu.kvm_run->debug.arch.pc,
             "entry not match, right = 0x%llx, wrong = 0x%x", vcpu.kvm_run->debug.arch.pc, vcpu.entry);
         kvm_set_step_mode(false, 0);
@@ -374,7 +374,7 @@ void difftest_raise_intr(word_t NO) {
   uint32_t entry = vm.mem[pgate] | (vm.mem[pgate + 1] << 8) |
     (vm.mem[pgate + 6] << 16) | (vm.mem[pgate + 7] << 24);
   kvm_set_step_mode(true, entry);
-  vcpu.int_wp_state = STATE_INT_INSTR;
+  vcpu.int_wp_state = STATE_INT_INST;
   vcpu.has_error_code = (NO == 14);
   vcpu.entry = entry;
 

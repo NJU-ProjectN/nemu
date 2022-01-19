@@ -14,13 +14,21 @@ config PC_RESET_OFFSET
   default 0x100000 if ISA_x86
   default 0
 
-if !TARGET_AM
+choice
+  prompt "Physical memory definition"
+  default PMEM_GARRAY
+config PMEM_MALLOC
+  bool "Using malloc()"
+config PMEM_GARRAY
+  depends on !TARGET_AM
+  bool "Using global array"
+endchoice
+
 config MEM_RANDOM
-  depends on MODE_SYSTEM && !DIFFTEST
+  depends on MODE_SYSTEM && !DIFFTEST && !TARGET_AM
   bool "Initialize the memory with random values"
   default y
   help
     This may help to find undefined behaviors.
-endif
 
 endmenu #MEMORY

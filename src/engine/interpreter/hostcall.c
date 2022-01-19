@@ -1,22 +1,21 @@
 #include <utils.h>
 #include <cpu/ifetch.h>
-#include <rtl/rtl.h>
+#include <isa.h>
 #include <cpu/difftest.h>
 
-uint32_t pio_read(ioaddr_t addr, int len);
-void pio_write(ioaddr_t addr, int len, uint32_t data);
-
 void set_nemu_state(int state, vaddr_t pc, int halt_ret) {
+  difftest_skip_ref();
   nemu_state.state = state;
   nemu_state.halt_pc = pc;
   nemu_state.halt_ret = halt_ret;
 }
 
-static void invalid_instr(vaddr_t thispc) {
+__attribute__((noinline))
+void invalid_inst(vaddr_t thispc) {
   uint32_t temp[2];
   vaddr_t pc = thispc;
-  temp[0] = instr_fetch(&pc, 4);
-  temp[1] = instr_fetch(&pc, 4);
+  temp[0] = inst_fetch(&pc, 4);
+  temp[1] = inst_fetch(&pc, 4);
 
   uint8_t *p = (uint8_t *)temp;
   printf("invalid opcode(PC = " FMT_WORD "):\n"
@@ -34,25 +33,4 @@ static void invalid_instr(vaddr_t thispc) {
         "* Every line of untested code is always wrong!\n\n", ASNI_FG_RED), isa_logo);
 
   set_nemu_state(NEMU_ABORT, thispc, -1);
-}
-
-def_rtl(hostcall, uint32_t id, rtlreg_t *dest, const rtlreg_t *src1,
-    const rtlreg_t *src2, word_t imm) {
-  switch (id) {
-    case HOSTCALL_EXIT:
-      difftest_skip_ref();
-      set_nemu_state(NEMU_END, s->pc, *src1);
-      break;
-    case HOSTCALL_INV: invalid_instr(s->pc); break;
-#ifdef CONFIG_HAS_PORT_IO
-    case HOSTCALL_PIO: {
-      int width = imm & 0xf;
-      bool is_in = ((imm & ~0xf) != 0);
-      if (is_in) *dest = pio_read(*src1, width);
-      else pio_write(*dest, width, *src1);
-      break;
-    }
-#endif
-    default: panic("Unsupport hostcall ID = %d", id); break;
-  }
 }

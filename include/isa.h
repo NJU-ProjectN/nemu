@@ -20,10 +20,10 @@ word_t isa_reg_str2val(const char *name, bool *success);
 
 // exec
 struct Decode;
-int isa_fetch_decode(struct Decode *s);
+int isa_exec_once(struct Decode *s);
 
 // memory
-enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL, MMU_DYNAMIC };
+enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };
 enum { MEM_TYPE_IFETCH, MEM_TYPE_READ, MEM_TYPE_WRITE };
 enum { MEM_RET_OK, MEM_RET_FAIL, MEM_RET_CROSS_PAGE };
 #ifndef isa_mmu_check

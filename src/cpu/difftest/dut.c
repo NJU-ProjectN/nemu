@@ -14,7 +14,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 #ifdef CONFIG_DIFFTEST
 
 static bool is_skip_ref = false;
-static int skip_dut_nr_instr = 0;
+static int skip_dut_nr_inst = 0;
 
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
@@ -27,7 +27,7 @@ void difftest_skip_ref() {
   // already write some memory, and the incoming instruction in NEMU
   // will load that memory, we will encounter false negative. But such
   // situation is infrequent.
-  skip_dut_nr_instr = 0;
+  skip_dut_nr_inst = 0;
 }
 
 // this is used to deal with instruction packing in QEMU.
@@ -37,7 +37,7 @@ void difftest_skip_ref() {
 //   Let REF run `nr_ref` instructions first.
 //   We expect that DUT will catch up with REF within `nr_dut` instructions.
 void difftest_skip_dut(int nr_ref, int nr_dut) {
-  skip_dut_nr_instr += nr_dut;
+  skip_dut_nr_inst += nr_dut;
 
   while (nr_ref -- > 0) {
     ref_difftest_exec(1);
@@ -87,15 +87,15 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
 
-  if (skip_dut_nr_instr > 0) {
+  if (skip_dut_nr_inst > 0) {
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     if (ref_r.pc == npc) {
-      skip_dut_nr_instr = 0;
+      skip_dut_nr_inst = 0;
       checkregs(&ref_r, npc);
       return;
     }
-    skip_dut_nr_instr --;
-    if (skip_dut_nr_instr == 0)
+    skip_dut_nr_inst --;
+    if (skip_dut_nr_inst == 0)
       panic("can not catch up with ref.pc = " FMT_WORD " at pc = " FMT_WORD, ref_r.pc, pc);
     return;
   }

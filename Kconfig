@@ -58,7 +58,7 @@ choice
 config TARGET_NATIVE_ELF
   bool "Executable on Linux Native"
 config TARGET_AM
-  bool "Application on Abstract-Machine"
+  bool "Application on Abstract-Machine (DON'T CHOOSE)"
 endchoice
 
 menu "Build Options"
@@ -83,7 +83,9 @@ config CC
 
 choice
   prompt "Optimization Level"
+  default CC_Og if CC_DEBUG
   default CC_O2
+if !CC_DEBUG
 config CC_O0
   bool "O0"
 config CC_O1
@@ -92,6 +94,9 @@ config CC_O2
   bool "O2"
 config CC_O3
   bool "O3"
+endif
+config CC_Og
+  bool "Og"
 endchoice
 
 config CC_OPT
@@ -100,6 +105,7 @@ config CC_OPT
   default "-O1" if CC_O1
   default "-O2" if CC_O2
   default "-O3" if CC_O3
+  default "-Og" if CC_Og
   default "none"
 
 config CC_LTO

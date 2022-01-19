@@ -8,7 +8,7 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-#define gpr(idx) (cpu.gpr[check_reg_idx(idx)]._64)
+#define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
 
 static inline const char* reg_name(int idx, int width) {
   extern const char* regs[];
