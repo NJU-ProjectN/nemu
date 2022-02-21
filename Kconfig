@@ -57,6 +57,8 @@ choice
   default TARGET_NATIVE_ELF
 config TARGET_NATIVE_ELF
   bool "Executable on Linux Native"
+config TARGET_SHARE
+  bool "Shared object (used as REF for differential testing)"
 config TARGET_AM
   bool "Application on Abstract-Machine (DON'T CHOOSE)"
 endchoice
