@@ -1,6 +1,6 @@
 REPO_PATH = repo
 ifeq ($(wildcard repo/spike_main),)
-  $(shell git clone --depth=1 https://github.com/NJU-ProjectN/riscv-isa-sim $(REPO_PATH))
+  $(shell git clone --depth=1 git@github.com:NJU-ProjectN/riscv-isa-sim $(REPO_PATH))
 endif
 
 REPO_BUILD_PATH = $(REPO_PATH)/build
