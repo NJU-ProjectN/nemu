@@ -27,10 +27,10 @@ void invalid_inst(vaddr_t thispc) {
       "1. The instruction at PC = " FMT_WORD " is not implemented.\n"
       "2. Something is implemented incorrectly.\n", thispc);
   printf("Find this PC(" FMT_WORD ") in the disassembling result to distinguish which case it is.\n\n", thispc);
-  printf(ASNI_FMT("If it is the first case, see\n%s\nfor more details.\n\n"
+  printf(ANSI_FMT("If it is the first case, see\n%s\nfor more details.\n\n"
         "If it is the second case, remember:\n"
         "* The machine is always right!\n"
-        "* Every line of untested code is always wrong!\n\n", ASNI_FG_RED), isa_logo);
+        "* Every line of untested code is always wrong!\n\n", ANSI_FG_RED), isa_logo);
 
   set_nemu_state(NEMU_ABORT, thispc, -1);
 }
