@@ -1,11 +1,11 @@
 menu "Memory Configuration"
 
-config MBASE
+config MBASE_CONF
   hex "Memory base address"
   default 0x0        if ISA_x86
   default 0x80000000
 
-config MSIZE
+config MSIZE_CONF
   hex "Memory size"
   default 0x8000000
 
