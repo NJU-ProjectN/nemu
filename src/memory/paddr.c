@@ -22,8 +22,8 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 static void out_of_bound(paddr_t addr) {
-  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR ") at pc = " FMT_WORD,
-      addr, CONFIG_MBASE, CONFIG_MBASE + CONFIG_MSIZE, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+      addr, CONFIG_MBASE, CONFIG_MBASE + CONFIG_MSIZE - 1, cpu.pc);
 }
 
 void init_mem() {
@@ -39,7 +39,7 @@ void init_mem() {
   }
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]",
-      (paddr_t)CONFIG_MBASE, (paddr_t)CONFIG_MBASE + CONFIG_MSIZE);
+      (paddr_t)CONFIG_MBASE, (paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1);
 }
 
 word_t paddr_read(paddr_t addr, int len) {
