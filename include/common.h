@@ -15,9 +15,12 @@
 #include <stdlib.h>
 #endif
 
-#if CONFIG_MBASE + CONFIG_MSIZE > 0x100000000ul
+#if CONFIG_MBASE_CONF + CONFIG_MSIZE_CONF > 0x100000000ul
 #define PMEM64 1
 #endif
+
+#define CONFIG_MBASE (paddr_t)CONFIG_MBASE_CONF
+#define CONFIG_MSIZE (paddr_t)CONFIG_MSIZE_CONF
 
 typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
 typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t;
