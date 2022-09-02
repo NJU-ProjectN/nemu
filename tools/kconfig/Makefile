@@ -10,7 +10,7 @@ ifeq ($(NAME),conf)
 SRCS += conf.c
 else ifeq ($(NAME),mconf)
 SRCS += mconf.c $(shell find lxdialog/ -name "*.c")
-LIBS += -lncurses -ltinfo
+LIBS += -lncurses
 else
 $(error bad target=$(NAME))
 endif
