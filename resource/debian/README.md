@@ -42,12 +42,24 @@ sudo chroot /mnt /bin/bash
 * 安装所需工具(根据实际情况选择)
 ```
 apt-get update
+apt-get install systemd
 apt-get install gcc build-essential
 apt-get install tmux libreadline-dev
 apt-get install net-tools openssh-server
 # fix long delay of openssh server
 apt-get install haveged
-agt-get install sbt
+apt-get install sbt
+```
+
+* 修复`NO_PUBKEY E852514F5DF312F6`错误, 见[这里](https://www.reddit.com/r/RISCV/comments/sn0cph/sipeed_debian_the_following_signatures_couldnt_be/)
+```
+curl https://www.ports.debian.org/archive_2022.key | apt-key add -
+```
+
+* 同步时间
+```
+apt-get install ntpdate
+ntpdate 0.asia.pool.ntp.org
 ```
 
 * 在`/etc/fstab`中添加swap分区
@@ -156,3 +168,5 @@ sudo losetup -d /dev/loop0  # 删除loop设备
 在i9-9900k上测试, 约90s后看到debian的登录提示符.
 
 * 当以可写方式启动镜像时, NEMU遇到错误或通过Ctrl+C直接退出NEMU时, 可能会损坏镜像的崩溃一致性, 此时可以通过fsck命令修复分区.
+
+* 更多命令可参考[这里](https://github.com/carlosedp/riscv-bringup/blob/master/Debian-Rootfs-Guide.md).
