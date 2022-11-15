@@ -13,26 +13,23 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#ifndef __DIFFTEST_DEF_H__
-#define __DIFFTEST_DEF_H__
+#ifndef __ISA_LOONGARCH32R_H__
+#define __ISA_LOONGARCH32R_H__
 
-#include <stdint.h>
-#include <generated/autoconf.h>
+#include <common.h>
 
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+typedef struct {
+  word_t gpr[32];
+  vaddr_t pc;
+} loongarch32r_CPU_state;
 
-#if defined(CONFIG_ISA_x86)
-# define DIFFTEST_REG_SIZE (sizeof(uint32_t) * 9) // GPRs + pc
-#elif defined(CONFIG_ISA_mips32)
-# define DIFFTEST_REG_SIZE (sizeof(uint32_t) * 38) // GRPs + status + lo + hi + badvaddr + cause + pc
-#elif defined(CONFIG_ISA_riscv32)
-# define DIFFTEST_REG_SIZE (sizeof(uint32_t) * 33) // GRPs + pc
-#elif defined(CONFIG_ISA_riscv64)
-# define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
-#elif defined(CONFIG_ISA_loongarch32r)
-# define DIFFTEST_REG_SIZE (sizeof(uint32_t) * 33) // GRPs + pc
-#else
-# error Unsupport ISA
-#endif
+// decode
+typedef struct {
+  union {
+    uint32_t val;
+  } inst;
+} loongarch32r_ISADecodeInfo;
+
+#define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
 
 #endif

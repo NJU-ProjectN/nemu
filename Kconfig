@@ -11,6 +11,8 @@ config ISA_riscv32
   bool "riscv32"
 config ISA_riscv64
   bool "riscv64"
+config ISA_loongarch32r
+  bool "loongarch32r"
 endchoice
 
 config ISA
@@ -19,6 +21,7 @@ config ISA
   default "mips32" if ISA_mips32
   default "riscv32" if ISA_riscv32
   default "riscv64" if ISA_riscv64
+  default "loongarch32r" if ISA_loongarch32r
   default "none"
 
 config ISA64
