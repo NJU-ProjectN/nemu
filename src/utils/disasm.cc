@@ -24,6 +24,9 @@
 #include "llvm/MC/MCInstPrinter.h"
 #if LLVM_VERSION_MAJOR >= 14
 #include "llvm/MC/TargetRegistry.h"
+#if LLVM_VERSION_MAJOR >= 15
+#include "llvm/MC/MCSubtargetInfo.h"
+#endif
 #else
 #include "llvm/Support/TargetRegistry.h"
 #endif
