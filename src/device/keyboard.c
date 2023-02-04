@@ -33,6 +33,11 @@ f(UP) f(DOWN) f(LEFT) f(RIGHT) f(INSERT) f(DELETE) f(HOME) f(END) f(PAGEUP) f(PA
 
 #define _KEY_NAME(k) _KEY_##k,
 
+// It's conflicted on macos with sys/_types/_key_t.h
+#ifdef __APPLE__
+  #undef _KEY_T 
+#endif
+
 enum {
   _KEY_NONE = 0,
   MAP(_KEYS, _KEY_NAME)
