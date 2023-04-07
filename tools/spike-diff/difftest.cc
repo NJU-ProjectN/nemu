@@ -81,7 +81,7 @@ void sim_t::diff_memcpy(reg_t dest, void* src, size_t n) {
 
 extern "C" {
 
-void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+__EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
     s->diff_memcpy(addr, buf, n);
   } else {
@@ -89,7 +89,7 @@ void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   }
 }
 
-void difftest_regcpy(void* dut, bool direction) {
+__EXPORT void difftest_regcpy(void* dut, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
     s->diff_set_regs(dut);
   } else {
@@ -97,11 +97,11 @@ void difftest_regcpy(void* dut, bool direction) {
   }
 }
 
-void difftest_exec(uint64_t n) {
+__EXPORT void difftest_exec(uint64_t n) {
   s->diff_step(n);
 }
 
-void difftest_init(int port) {
+__EXPORT void difftest_init(int port) {
   difftest_htif_args.push_back("");
   s = new sim_t(DEFAULT_ISA, DEFAULT_PRIV, DEFAULT_VARCH, 1, false, false,
       0, 0, NULL, reg_t(-1), difftest_mem, difftest_plugin_devices, difftest_htif_args,
@@ -109,7 +109,7 @@ void difftest_init(int port) {
   s->diff_init(port);
 }
 
-void difftest_raise_intr(uint64_t NO) {
+__EXPORT void difftest_raise_intr(uint64_t NO) {
   trap_t t(NO);
   p->take_trap_public(t, state->pc);
 }

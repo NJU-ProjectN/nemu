@@ -3,8 +3,8 @@
 # Add necessary options if the target is a shared library
 ifeq ($(SHARE),1)
 SO = -so
-CFLAGS  += -fPIC
-LDFLAGS += -rdynamic -shared -fPIC
+CFLAGS  += -fPIC -fvisibility=hidden
+LDFLAGS += -shared -fPIC
 endif
 
 WORK_DIR  = $(shell pwd)

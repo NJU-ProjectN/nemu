@@ -345,12 +345,12 @@ static void run_protected_mode() {
   kvm_exec(10);
 }
 
-void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+__EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) memcpy(vm.mem + addr, buf, n);
   else memcpy(buf, vm.mem + addr, n);
 }
 
-void difftest_regcpy(void *r, bool direction) {
+__EXPORT void difftest_regcpy(void *r, bool direction) {
   struct kvm_regs *ref = &(vcpu.kvm_run->s.regs.regs);
   x86_CPU_state *x86 = r;
   if (direction == DIFFTEST_TO_REF) {
@@ -378,11 +378,11 @@ void difftest_regcpy(void *r, bool direction) {
   }
 }
 
-void difftest_exec(uint64_t n) {
+__EXPORT void difftest_exec(uint64_t n) {
   kvm_exec(n);
 }
 
-void difftest_raise_intr(word_t NO) {
+__EXPORT void difftest_raise_intr(word_t NO) {
   uint32_t pgate_vaddr = vcpu.kvm_run->s.regs.sregs.idt.base + NO * 8;
   uint32_t pgate = va2pa(pgate_vaddr);
   // assume code.base = 0
@@ -401,7 +401,7 @@ void difftest_raise_intr(word_t NO) {
   }
 }
 
-void difftest_init(int port) {
+__EXPORT void difftest_init(int port) {
   vm_init(CONFIG_MSIZE);
   vcpu_init();
   run_protected_mode();
