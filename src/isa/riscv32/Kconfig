@@ -1,0 +1,10 @@
+menu "ISA-dependent Options for riscv"
+
+config RV64
+  bool "64-bit RISC-V architecture"
+  default n
+
+config RVE
+  bool "Use E extension"
+  default n
+endmenu
