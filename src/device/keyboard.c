@@ -38,7 +38,7 @@ enum {
   MAP(NEMU_KEYS, NEMU_KEY_NAME)
 };
 
-#define SDL_KEYMAP(k) keymap[concat(SDL_SCANCODE_, k)] = concat(NEMU_KEY_, k);
+#define SDL_KEYMAP(k) keymap[SDL_SCANCODE_ ## k] = NEMU_KEY_ ## k;
 static uint32_t keymap[256] = {};
 
 static void init_keymap() {
