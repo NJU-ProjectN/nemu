@@ -53,6 +53,7 @@ static void init_screen() {
   SDL_SetWindowTitle(window, title);
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
       SDL_TEXTUREACCESS_STATIC, SCREEN_W, SCREEN_H);
+  SDL_RenderPresent(renderer);
 }
 
 static inline void update_screen() {
