@@ -27,6 +27,7 @@ void init_wp_pool();
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
+  HIST_ENTRY *last_line = NULL;
 
   if (line_read) {
     free(line_read);
@@ -37,6 +38,11 @@ static char* rl_gets() {
 
   if (line_read && *line_read) {
     add_history(line_read);
+  } else if (line_read && (history_length > 0)) {
+    last_line = history_get(history_length);
+    free(line_read);
+    line_read = malloc((strlen(last_line->line) + 1) * sizeof(char));
+    memcpy(line_read, last_line->line, (strlen(last_line->line) + 1) * sizeof(char));
   }
 
   return line_read;
