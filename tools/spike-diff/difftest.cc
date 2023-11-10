@@ -72,6 +72,7 @@ void sim_t::diff_set_regs(void* diff_context) {
 
 void sim_t::diff_memcpy(reg_t dest, void* src, size_t n) {
   mmu_t* mmu = p->get_mmu();
+  mmu->flush_tlb();
   for (size_t i = 0; i < n; i++) {
     mmu->store<uint8_t>(dest+i, *((uint8_t*)src+i));
   }
