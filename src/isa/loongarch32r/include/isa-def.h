@@ -32,4 +32,9 @@ typedef struct {
 
 #define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
 
+enum {
+  TYPE_2RI12, TYPE_1RI20,
+  TYPE_N, // none
+};
+
 #endif

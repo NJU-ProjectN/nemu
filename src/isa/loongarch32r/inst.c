@@ -17,15 +17,11 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include "isa.h"
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
-
-enum {
-  TYPE_2RI12, TYPE_1RI20,
-  TYPE_N, // none
-};
 
 #define src1R()  do { *src1 = R(rj); } while (0)
 #define simm12() do { *imm = SEXT(BITS(i, 21, 10), 12); } while (0)
