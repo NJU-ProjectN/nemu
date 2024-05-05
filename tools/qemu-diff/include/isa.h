@@ -29,6 +29,9 @@
 #elif defined(CONFIG_ISA_x86)
 #define ISA_QEMU_BIN "qemu-system-i386"
 #define ISA_QEMU_ARGS
+#elif defined(CONFIG_ISA_loongarch32r)
+#define ISA_QEMU_BIN "qemu-system-loongarch32"
+#define ISA_QEMU_ARGS "-M","ls3a5k32",
 #else
 #error Unsupport ISA
 #endif
@@ -49,6 +52,9 @@ union isa_gdb_regs {
     uint32_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
     uint32_t eip, eflags;
     uint32_t cs, ss, ds, es, fs, gs;
+#elif defined(CONFIG_ISA_loongarch32r)
+  uint32_t gpr[32];
+  uint32_t pc;
 #endif
   };
   struct {
