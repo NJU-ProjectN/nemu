@@ -17,7 +17,7 @@ COLOR_RED := $(shell echo "\033[1;31m")
 COLOR_END := $(shell echo "\033[0m")
 
 ifeq ($(wildcard .config),)
-$(warning $(COLOR_RED)Warning: .config does not exists!$(COLOR_END))
+$(warning $(COLOR_RED)Warning: .config does not exist!$(COLOR_END))
 $(warning $(COLOR_RED)To build the project, first run 'make menuconfig'.$(COLOR_END))
 endif
 
