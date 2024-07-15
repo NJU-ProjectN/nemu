@@ -22,7 +22,7 @@ void init_mem();
 void init_difftest(char *ref_so_file, long img_size, int port);
 void init_device();
 void init_sdb();
-void init_disasm(const char *triple);
+void init_disasm();
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
@@ -128,16 +128,7 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize the simple debugger. */
   init_sdb();
 
-#ifndef CONFIG_ISA_loongarch32r
-  IFDEF(CONFIG_ITRACE, init_disasm(
-    MUXDEF(CONFIG_ISA_x86,     "i686",
-    MUXDEF(CONFIG_ISA_mips32,  "mipsel",
-    MUXDEF(CONFIG_ISA_riscv,
-      MUXDEF(CONFIG_RV64,      "riscv64",
-                               "riscv32"),
-                               "bad"))) "-pc-linux-gnu"
-  ));
-#endif
+  IFDEF(CONFIG_ITRACE, init_disasm());
 
   /* Display welcome message. */
   welcome();
