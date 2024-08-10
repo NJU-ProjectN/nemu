@@ -49,7 +49,7 @@ uint64_t get_time();
 #define ANSI_BG_GREEN   "\33[1;42m"
 #define ANSI_BG_YELLOW  "\33[1;43m"
 #define ANSI_BG_BLUE    "\33[1;44m"
-#define ANSI_BG_MAGENTA "\33[1;35m"
+#define ANSI_BG_MAGENTA "\33[1;45m"
 #define ANSI_BG_CYAN    "\33[1;46m"
 #define ANSI_BG_WHITE   "\33[1;47m"
 #define ANSI_NONE       "\33[0m"
