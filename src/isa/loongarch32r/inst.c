@@ -38,6 +38,8 @@ static void decode_operand(Decode *s, int *rd_, word_t *src1, word_t *src2, word
   switch (type) {
     case TYPE_1RI20: simm20(); src1R(); break;
     case TYPE_2RI12: simm12(); src1R(); break;
+    case TYPE_N: break;
+    default: panic("Unsupport type = %d", type);
   }
 }
 
