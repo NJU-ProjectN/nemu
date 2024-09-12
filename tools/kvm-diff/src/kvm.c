@@ -58,6 +58,7 @@ enum {
 
 static struct vm vm;
 static struct vcpu vcpu;
+static FILE *log_fp = NULL; // only to pass linking
 
 // This should be called everytime after KVM_SET_REGS.
 // It seems that KVM_SET_REGS will clean the state of single step.
