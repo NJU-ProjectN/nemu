@@ -41,9 +41,7 @@ typedef struct {
 
 // decode
 typedef struct {
-  struct {
-    uint8_t val[16];
-  } inst;
+  uint8_t inst[16];
   uint8_t *p_inst;
 } x86_ISADecodeInfo;
 

@@ -25,9 +25,7 @@ typedef struct {
 
 // decode
 typedef struct {
-  union {
-    uint32_t val;
-  } inst;
+  uint32_t inst;
 } loongarch32r_ISADecodeInfo;
 
 #define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
