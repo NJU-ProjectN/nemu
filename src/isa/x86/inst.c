@@ -152,6 +152,7 @@ enum {
   word_t src1 = 0, addr = 0, imm = 0; \
   int w = width == 0 ? (is_operand_size_16 ? 2 : 4) : width; \
   decode_operand(s, opcode, &rd, &src1, &addr, &rs, &gp_idx, &imm, w, concat(TYPE_, type)); \
+  s->dnpc = s->snpc; \
   __VA_ARGS__ ; \
 }
 
@@ -164,6 +165,7 @@ static void decode_operand(Decode *s, uint8_t opcode, int *rd_, word_t *src1,
     case TYPE_I2E:  decode_rm(s, rd_, addr, gp_idx, w); imm(); break;
     case TYPE_O2a:  destr(R_EAX); *addr = x86_inst_fetch(s, 4); break;
     case TYPE_a2O:  *rs = R_EAX;  *addr = x86_inst_fetch(s, 4); break;
+    case TYPE_N:    break;
     default: panic("Unsupported type = %d", type);
   }
 }
@@ -184,7 +186,6 @@ void _2byte_esc(Decode *s, bool is_operand_size_16) {
 int isa_exec_once(Decode *s) {
   bool is_operand_size_16 = false;
   uint8_t opcode = 0;
-  s->dnpc = s->snpc;
 
 again:
   opcode = x86_inst_fetch(s, 1);
