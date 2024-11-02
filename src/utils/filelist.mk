@@ -13,10 +13,15 @@
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
 
+HOSTOS := $(shell uname)
 ifeq ($(CONFIG_ITRACE)$(CONFIG_IQUEUE),)
 SRCS-BLACKLIST-y += src/utils/disasm.c
 else
+ifeq ($(OS), Darwin)
+LIBCAPSTONE = tools/capstone/repo/libcapstone.5.dylib
+else
 LIBCAPSTONE = tools/capstone/repo/libcapstone.so.5
+endif
 CFLAGS += -I tools/capstone/repo/include
 src/utils/disasm.c: $(LIBCAPSTONE)
 $(LIBCAPSTONE):

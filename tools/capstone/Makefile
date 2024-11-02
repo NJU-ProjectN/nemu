@@ -18,7 +18,11 @@ ifeq ($(wildcard repo/include/capstone/capstone.h),)
   $(shell git clone --depth=1 -b 5.0.3 git@github.com:capstone-engine/capstone.git $(REPO_PATH))
 endif
 
-CAPSTONE = $(REPO_PATH)/libcapstone.so.5
+ifeq ($(shell uname), Darwin)
+    CAPSTONE = $(REPO_PATH)/libcapstone.5.dylib
+else
+    CAPSTONE = $(REPO_PATH)/libcapstone.so.5
+endif
 $(CAPSTONE):
 	cd $(REPO_PATH) && CAPSTONE_ARCHS="x86|mips|riscv|loongarch" bash make.sh
 
