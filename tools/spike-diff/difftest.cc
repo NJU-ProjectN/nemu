@@ -102,7 +102,7 @@ __EXPORT void difftest_exec(uint64_t n) {
 __EXPORT void difftest_init(int port) {
   difftest_htif_args.push_back("");
   const char *isa = "RV" MUXDEF(CONFIG_RV64, "64", "32") MUXDEF(CONFIG_RVE, "E", "I") "MAFDC";
-  cfg_t cfg(/*default_initrd_bounds=*/std::make_pair((reg_t)0, (reg_t)0),
+  cfg_t *cfg = new cfg_t(/*default_initrd_bounds=*/std::make_pair((reg_t)0, (reg_t)0),
             /*default_bootargs=*/nullptr,
             /*default_isa=*/isa,
             /*default_priv=*/DEFAULT_PRIV,
@@ -114,7 +114,7 @@ __EXPORT void difftest_init(int port) {
             /*default_hartids=*/std::vector<size_t>(1),
             /*default_real_time_clint=*/false,
             /*default_trigger_count=*/4);
-  s = new sim_t(&cfg, false,
+  s = new sim_t(cfg, false,
       difftest_mem, difftest_plugin_devices, difftest_htif_args,
       difftest_dm_config, nullptr, false, NULL,
       false,
