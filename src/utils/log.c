@@ -19,6 +19,7 @@ extern uint64_t g_nr_guest_inst;
 
 #ifndef CONFIG_TARGET_AM
 FILE *log_fp = NULL;
+bool use_stdout = true;
 
 void init_log(const char *log_file) {
   log_fp = stdout;
@@ -26,6 +27,7 @@ void init_log(const char *log_file) {
     FILE *fp = fopen(log_file, "w");
     Assert(fp, "Can not open '%s'", log_file);
     log_fp = fp;
+    use_stdout = false;
   }
   Log("Log is written to %s", log_file ? log_file : "stdout");
 }
