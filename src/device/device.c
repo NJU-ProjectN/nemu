@@ -18,6 +18,7 @@
 #include <device/alarm.h>
 #ifndef CONFIG_TARGET_AM
 #include <SDL2/SDL.h>
+#include <signal.h>
 #endif
 
 void init_map();
@@ -33,13 +34,31 @@ void init_alarm();
 void send_key(uint8_t, bool);
 void vga_update_screen();
 
+#ifndef CONFIG_TARGET_AM
+static volatile sig_atomic_t device_update_requested = 0;
+
+static void request_device_update() {
+  device_update_requested = 1;
+}
+#endif
+
 void device_update() {
+  if (unlikely(nemu_state.state != NEMU_RUNNING))
+    return;
+
+#ifndef CONFIG_TARGET_AM
+  if (!device_update_requested)
+    return;
+
+  device_update_requested = 0;
+#else
   static uint64_t last = 0;
   uint64_t now = get_time();
   if (now - last < 1000000 / TIMER_HZ) {
     return;
   }
   last = now;
+#endif
 
   IFDEF(CONFIG_HAS_VGA, vga_update_screen());
 
@@ -86,4 +105,5 @@ void init_device() {
   IFDEF(CONFIG_HAS_SDCARD, init_sdcard());
 
   IFNDEF(CONFIG_TARGET_AM, init_alarm());
+  IFNDEF(CONFIG_TARGET_AM, add_alarm_handle(request_device_update));
 }
