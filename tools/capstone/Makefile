@@ -26,7 +26,7 @@ else
   $(error Unsupported OS ($(shell uname -s)))
 endif
 
-CAPSTONE = $(REPO_PATH)/libcapstone.so.5
+CAPSTONE = $(REPO_PATH)/libcapstone.$(suffix)
 $(CAPSTONE):
 	cd $(REPO_PATH) && CAPSTONE_ARCHS="x86|mips|riscv|loongarch" bash make.sh
 
