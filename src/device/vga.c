@@ -56,6 +56,9 @@ static void init_screen() {
   SDL_RenderPresent(renderer);
 }
 
+// TODO: remove this line after vga_update_screen() is finished
+static inline void update_screen() UNUSED;
+
 static inline void update_screen() {
   SDL_UpdateTexture(texture, NULL, vmem, SCREEN_W * sizeof(uint32_t));
   SDL_RenderClear(renderer);
