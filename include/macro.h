@@ -108,3 +108,28 @@
     ioe_write(reg, &__io_param); })
 
 #endif
+
+/**
+ * @brief 对一个变量的位模式进行类型重解释，类似于 C++20 的 std::bit_cast。
+ * @note  此宏使用了GCC/Clang的语句表达式扩展，以便在表达式中使用。
+ * @param dest_type 目标类型。
+ * @param src   源变量（不是指针）。
+ * @return 一个类型为 dest_type 的新值，其位模式与 src 相同。
+ */
+#if __STDC_VERSION__ >= 201112L
+#define BITCAST(dest_type, src) \
+    ({ \
+        _Static_assert(sizeof(dest_type) == sizeof(src), "Bitcast types must have the same size"); \
+        dest_type dest; \
+        memcpy(&dest, &src, sizeof(dest)); \
+        dest; \
+    })
+#else
+#define BITCAST(dest_type, src) \
+    ({ \
+        assert(sizeof(dest_type) == sizeof(src) && "Bitcast types must have the same size"); \
+        dest_type dest; \
+        memcpy(&dest, &src, sizeof(dest)); \
+        dest; \
+    })
+#endif
