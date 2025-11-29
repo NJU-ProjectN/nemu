@@ -5,9 +5,8 @@ SRCS += $(obj)/lexer.lex.c $(obj)/parser.tab.c
 CC = gcc
 CFLAGS += -DYYDEBUG
 INC_PATH += .
-DISTRO = $(shell cat /etc/os-release | grep PRETTY_NAME | sed 's/PRETTY_NAME=//')
 
-ifeq ($(DISTRO),"Gentoo Linux")
+ifneq ($(wildcard /etc/gentoo-release),)
 LIBS += -ltinfo
 endif
 
