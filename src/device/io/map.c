@@ -20,15 +20,17 @@
 
 #define IO_SPACE_MAX (32 * 1024 * 1024)
 
-static uint8_t *io_space = NULL;
-static uint8_t *p_space = NULL;
+static void *io_space = NULL;
+static void *p_space = NULL;
 
-uint8_t* new_space(int size) {
-  uint8_t *p = p_space;
+// 与malloc保持一致，由调用者决定以什么方式使用这块内存
+// 只要调用者不强转则不违反严格别名规则
+void *new_space(int size) {
+  void *p = p_space;
   // page aligned;
   size = (size + (PAGE_SIZE - 1)) & ~PAGE_MASK;
-  p_space += size;
-  assert(p_space - io_space < IO_SPACE_MAX);
+  p_space = (uint8_t *)p_space + size ;
+  assert((uint8_t *)p_space - (uint8_t *)io_space < IO_SPACE_MAX);
   return p;
 }
 
@@ -57,7 +59,7 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, false); // prepare data to read
-  word_t ret = host_read(map->space + offset, len);
+  word_t ret = host_read((uint8_t *)map->space + offset, len);
   return ret;
 }
 
@@ -65,6 +67,6 @@ void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
-  host_write(map->space + offset, len, data);
+  host_write((uint8_t *)map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, true);
 }
