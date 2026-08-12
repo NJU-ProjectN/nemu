@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "local-include/reg.h"
+#include "macro.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
@@ -22,49 +23,91 @@
 #define Mr vaddr_read
 #define Mw vaddr_write
 
-enum {
-  TYPE_I, TYPE_U, TYPE_S,
-  TYPE_N, // none
-};
+#define INST_TYPE_LIST                                \
+  X(N, _1  , _2  , _3, _4)      /* none            */ \
+  X(I, vrs1, _2  , rd, imm)     /* Immediate       */ \
+  X(U, _1  , _2  , rd, imm)     /* Upper Immediate */ \
+  X(S, vrs1, vrs2, _3, imm)     /* Store           */
 
-#define src1R() do { *src1 = R(rs1); } while (0)
-#define src2R() do { *src2 = R(rs2); } while (0)
-#define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
-#define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
-#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+typedef enum {
+#define X(T, _1, _2, _3, _4) concat(TYPE_, T),
+  INST_TYPE_LIST
+#undef X
+} inst_type;
 
-static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
-  uint32_t i = s->isa.inst;
-  int rs1 = BITS(i, 19, 15);
-  int rs2 = BITS(i, 24, 20);
-  *rd     = BITS(i, 11, 7);
+#define X(T, _1, _2, _3, _4) \
+  typedef struct { word_t _1; word_t _2; word_t _3; word_t _4; } concat(decode_, T);
+INST_TYPE_LIST
+#undef X
+
+
+#define D_1(T)
+#define D_2(T)
+#define D_3(T)
+#define D_4(T)
+
+#define Drs1(T) BITS(i, 19, 15)
+#define Drs2(T) BITS(i, 24, 20)
+#define Drd(T)  do { ret._3 = BITS(i, 11, 7); } while(0)
+
+#define Dvrs1(T) do { ret._1 = R(Drs1(T)); } while (0)
+#define Dvrs2(T) do { ret._2 = R(Drs2(T)); } while (0)
+
+#define Dimm(T)  concat(Dimm, T)(T)
+#define DimmI(T) do { ret._4 = SEXT(BITS(i, 31, 20), 12); } while(0)
+#define DimmU(T) do { ret._4 = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
+#define DimmS(T) do { ret._4 = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+
+static decode_N decode_operand(Decode *s, inst_type type) {
+  word_t i = s->isa.inst;
+  decode_N ret = {0, 0, 0, 0};
   switch (type) {
-    case TYPE_I: src1R();          immI(); break;
-    case TYPE_U:                   immU(); break;
-    case TYPE_S: src1R(); src2R(); immS(); break;
-    case TYPE_N: break;
+#define X(T, _1, _2, _3, _4) \
+  case concat(TYPE_, T):     \
+    concat(D, _1)(T);        \
+    concat(D, _2)(T);        \
+    concat(D, _3)(T);        \
+    concat(D, _4)(T);        \
+    break;
+    INST_TYPE_LIST
+    /* For clarity, the INST_TYPE_LIST macro above expands the switch cases
+     * into the following logical structure:
+     *
+     * case TYPE_N   : D_1(T)    ; D_2(T)   ; D_3(T) ; D_4(T)   ; break ;
+     * case TYPE_I   : Dvrs1(T)  ; D_2(T)   ; Drd(T) ; DimmI(T) ; break ;
+     * case TYPE_U   : D_1(T)    ; D_2(T)   ; Drd(T) ; DimmU(T) ; break ;
+     * case TYPE_S   : Dvrs1(T)  ; Dvrs2(T) ; D_3(T) ; DimmS(T) ; break ;
+     * ... and so on for other types.
+     */
+#undef X
     default: panic("unsupported type = %d", type);
   }
+  return ret;
 }
 
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
 #define INSTPAT_INST(s) ((s)->isa.inst)
-#define INSTPAT_MATCH(s, name, type, ... /* execute body */ ) { \
-  int rd = 0; \
-  word_t src1 = 0, src2 = 0, imm = 0; \
-  decode_operand(s, &rd, &src1, &src2, &imm, concat(TYPE_, type)); \
+#define INSTPAT_MATCH(s, name, T, ... /* execute body */ ) { \
+  decode_N temp = decode_operand(s, concat(TYPE_, T)); \
+  [[maybe_unused]] concat(decode_, T) decode_result = BITCAST(concat(decode_, T), temp); \
   __VA_ARGS__ ; \
 }
 
-  INSTPAT_START();
-  INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);
-  INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu    , I, R(rd) = Mr(src1 + imm, 1));
-  INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb     , S, Mw(src1 + imm, 1, src2));
+#define vrs1 decode_result.vrs1
+#define vrs2 decode_result.vrs2
+#define rd   decode_result.rd
+#define imm  decode_result.imm
 
-  INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-  INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
+  INSTPAT_START();
+  
+  INSTPAT(" ??????? ????? ????? ??? ????? 0010111 "  , auipc      , U    , R(rd) = s->pc + imm);
+  INSTPAT(" ??????? ????? ????? 100 ????? 0000011 "  , lbu        , I    , R(rd)=Mr(vrs1 + imm, 1));
+  INSTPAT(" ??????? ????? ????? 000 ????? 0100011 "  , sb         , S    , Mw(vrs1 + imm,1,  BITS(vrs2, 7, 0)));
+
+  INSTPAT(" 0000000 00001 00000 000 00000 1110011 "  , ebreak     , N    , NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  INSTPAT(" ??????? ????? ????? ??? ????? ??????? "  , inv        , N    , INV(s->pc));
   INSTPAT_END();
 
   R(0) = 0; // reset $zero to 0

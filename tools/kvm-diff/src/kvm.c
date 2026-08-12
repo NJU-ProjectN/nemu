@@ -20,6 +20,7 @@
 
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/kvm.h>
@@ -238,7 +239,8 @@ static int patching() {
     if (vcpu.int_wp_state == STATE_INT_INST) return 0;
     vcpu.kvm_run->s.regs.regs.rsp -= 4;
     uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
-    *(uint32_t *)(vm.mem + esp) = vcpu.kvm_run->s.regs.regs.rflags & ~RFLAGS_FIX_MASK;
+    uint32_t rflags_val = vcpu.kvm_run->s.regs.regs.rflags & ~RFLAGS_FIX_MASK;
+    memcpy(vm.mem + esp, &rflags_val, sizeof(rflags_val));
     vcpu.kvm_run->s.regs.regs.rflags |= RFLAGS_TF;
     vcpu.kvm_run->s.regs.regs.rip ++;
     vcpu.kvm_run->kvm_dirty_regs = KVM_SYNC_X86_REGS;
@@ -247,7 +249,9 @@ static int patching() {
   else if (vm.mem[pc] == 0x9d) {  // popf
     if (vcpu.int_wp_state == STATE_INT_INST) return 0;
     uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
-    vcpu.kvm_run->s.regs.regs.rflags = *(uint32_t *)(vm.mem + esp) | RFLAGS_TF | 2;
+    uint32_t value_from_mem;
+    memcpy(&value_from_mem, vm.mem + esp, sizeof(value_from_mem));
+    vcpu.kvm_run->s.regs.regs.rflags = value_from_mem | RFLAGS_TF | 2;
     vcpu.kvm_run->s.regs.regs.rsp += 4;
     vcpu.kvm_run->s.regs.regs.rip ++;
     vcpu.kvm_run->kvm_dirty_regs = KVM_SYNC_X86_REGS;
@@ -255,7 +259,8 @@ static int patching() {
   }
   else if (vm.mem[pc] == 0xcf) { // iret
     uint32_t ret_addr = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
-    uint32_t eip = *(uint32_t *)(vm.mem + ret_addr);
+    uint32_t eip = 0;
+    memcpy(&eip, vm.mem + ret_addr, sizeof(eip));
     vcpu.entry = eip;
     kvm_set_step_mode(true, eip);
     vcpu.int_wp_state = STATE_IRET_INST;
@@ -266,7 +271,10 @@ static int patching() {
 
 static void fix_push_sreg() {
   uint32_t esp = va2pa(vcpu.kvm_run->s.regs.regs.rsp);
-  *(uint32_t *)(vm.mem + esp) &= 0x0000ffff;
+  uint32_t value_from_mem = 0;
+  memcpy(&value_from_mem, vm.mem + esp, sizeof(value_from_mem));
+  value_from_mem &= 0x0000ffff;
+  memcpy(vm.mem + esp, &value_from_mem, sizeof(value_from_mem));
 }
 
 static void patching_after(uint64_t last_pc) {
@@ -310,8 +318,10 @@ static void kvm_exec(uint64_t n) {
       if (vcpu.int_wp_state == STATE_INT_INST) {
         uint32_t eflag_offset = 8 + (vcpu.has_error_code ? 4 : 0);
         uint32_t eflag_addr = va2pa(vcpu.kvm_run->s.regs.regs.rsp + eflag_offset);
-        *(uint32_t *)(vm.mem + eflag_addr) &= ~RFLAGS_FIX_MASK;
-
+        uint32_t value_from_mem = 0;
+        memcpy(&value_from_mem, vm.mem + eflag_addr, sizeof(value_from_mem));
+        value_from_mem &= ~RFLAGS_FIX_MASK;
+        memcpy(vm.mem + eflag_addr, &value_from_mem, sizeof(value_from_mem));
         Assert(vcpu.entry == vcpu.kvm_run->debug.arch.pc,
             "entry not match, right = 0x%llx, wrong = 0x%x", vcpu.kvm_run->debug.arch.pc, vcpu.entry);
         kvm_set_step_mode(false, 0);
